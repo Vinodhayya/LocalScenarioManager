@@ -3,42 +3,38 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Stock Scenario Manager — Fixed Single File</title>
+<title>Stock Scenario Manager — Full Enhanced</title>
 
-<!-- Fonts & Icons (CDN) -->
+<!-- Fonts & Icons -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
 
-<!-- Bootstrap CSS (CDN) -->
+<!-- Bootstrap CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
 :root{
-  --primary-color:#ff9800; /* sandal orange */
-  --secondary:#6c757d;
-  --success:#28a745;
-  --danger:#dc3545;
-  --warning:#ffc107;
+  --primary:#ff9800; /* orange */
   --muted:#6b6b6b;
   --bg:#fbf7f2;
   --card:#ffffff;
+  --success:#28a745;
+  --danger:#dc3545;
+  --warning:#ffc107;
+  --not-produced-bg:#fff3e0;
 }
-*{box-sizing:border-box}
 body{
   font-family:'Poppins',sans-serif;
   background:linear-gradient(180deg,#fff 0%,var(--bg) 100%);
   color:#222;
-  -webkit-font-smoothing:antialiased;
 }
 .container{max-width:1200px;margin-top:28px}
-h1{color:var(--primary-color);font-weight:700}
-
+h1{color:var(--primary);font-weight:700}
 .card{border:none;border-radius:12px;box-shadow:0 8px 26px rgba(0,0,0,0.06)}
 .nav-tabs .nav-link{font-weight:600;color:var(--muted);border:none;padding:12px 18px}
-.nav-tabs .nav-link.active{color:var(--primary-color);border-bottom:3px solid var(--primary-color);background:transparent}
+.nav-tabs .nav-link.active{color:var(--primary);border-bottom:3px solid var(--primary);background:transparent}
 .tab-content{background:var(--card);padding:20px;border-radius:12px}
-.btn-primary{background:var(--primary-color);border-color:var(--primary-color)}
-.btn-primary:focus,.btn-primary:active{box-shadow:none}
+.btn-primary{background:var(--primary);border-color:var(--primary)}
 .form-control,.form-select{border-radius:8px}
 .scenario-card{display:flex;gap:16px;align-items:center;padding:14px;border-radius:12px;background:#fff;border:1px solid #eee}
 .scenario-card img{width:120px;height:80px;object-fit:cover;border-radius:8px}
@@ -47,11 +43,15 @@ h1{color:var(--primary-color);font-weight:700}
 .image-preview-item img{width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #ddd}
 .image-preview-item .remove-btn{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer}
 .login-wrap{display:flex;justify-content:center;align-items:center;min-height:100vh;background-image:url('https://source.unsplash.com/random/1600x900?finance,stock');background-size:cover;background-position:center}
-.login-container{width:360px;padding:32px;background:linear-gradient(180deg,var(--primary-color),#ffb86b);border-radius:12px;color:#fff;box-shadow:0 8px 30px rgba(0,0,0,0.18)}
+.login-container{width:360px;padding:32px;background:linear-gradient(180deg,var(--primary),#ffb86b);border-radius:12px;color:#fff;box-shadow:0 8px 30px rgba(0,0,0,0.18)}
 .login-container h2{font-weight:800}
 .zoom-wrap{overflow:hidden;border-radius:8px}
 .zoom-img{max-width:100%;height:auto;touch-action:none;user-select:none;-webkit-user-drag:none}
 .small-muted{color:var(--muted)}
+.table-striped tbody tr{box-shadow: 0 1px 0 rgba(0,0,0,0.02) inset;}
+.badge-pass{background:var(--success);color:#fff}
+.badge-fail{background:var(--danger);color:#fff}
+.badge-not{background:var(--warning);color:#212529}
 @media (max-width:767px){
   .scenario-card{flex-direction:row}
   .scenario-card img{width:90px;height:70px}
@@ -68,7 +68,8 @@ h1{color:var(--primary-color);font-weight:700}
     <form id="login-form">
       <div class="mb-2"><input class="form-control" id="username" placeholder="Username" required></div>
       <div class="mb-2"><input type="password" class="form-control" id="password" placeholder="Password" required></div>
-      <button class="btn btn-light w-100 fw-bold" type="submit">Login</button>
+      <!-- Changed to theme primary (orange) -->
+      <button class="btn btn-primary w-100 fw-bold" type="submit">Login</button>
       <div id="login-error" class="mt-3 small text-white" style="display:none"></div>
     </form>
   </div>
@@ -120,11 +121,11 @@ h1{color:var(--primary-color);font-weight:700}
       <div id="report-summary" class="mb-3"></div>
 
       <div class="card">
-        <div class="card-header fw-bold">Detailed Report</div>
+        <div class="card-header fw-bold" style="background-color: var(--primary); color:white;">Detailed Report</div>
         <div class="card-body">
           <div class="table-responsive">
             <table class="table table-striped" id="report-table">
-              <thead class="table-dark">
+              <thead style="background-color: var(--primary); color:white;">
                 <tr><th>Scenario Title</th><th>Date</th><th>Status</th><th>Rules Passed</th><th>Explanation</th><th>Actions</th></tr>
               </thead>
               <tbody></tbody>
@@ -146,7 +147,7 @@ h1{color:var(--primary-color);font-weight:700}
 
 <!-- MODALS -->
 
-<!-- Add/Edit Scenario Modal -->
+<!-- Add/Edit Scenario Modal (Removed Manage Rules button as requested) -->
 <div class="modal fade" id="addScenarioModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -180,10 +181,6 @@ h1{color:var(--primary-color);font-weight:700}
             <div id="image-preview-container" class="d-flex flex-wrap gap-2 mt-2"></div>
           </div>
           <hr />
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h6 class="mb-0">Manage Rules</h6>
-            <button type="button" id="manage-rules-from-scenario" class="btn btn-outline-primary btn-sm"><i class="fas fa-tasks me-1"></i> Manage Rules</button>
-          </div>
           <div id="daily-rules-container">
             <div class="alert alert-info text-center">Select a scenario to load rules.</div>
           </div>
@@ -207,7 +204,7 @@ h1{color:var(--primary-color);font-weight:700}
       </div>
       <div class="modal-body" id="view-scenario-body"></div>
       <div class="modal-footer">
-        <button id="view-manage-rules" class="btn btn-outline-primary"><i class="fas fa-tasks me-1"></i> Manage Rules</button>
+        <button id="view-manage-rules" class="btn btn-outline-primary d-none"><i class="fas fa-tasks me-1"></i> Manage Rules</button>
         <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
@@ -256,7 +253,7 @@ h1{color:var(--primary-color);font-weight:700}
   </div></div>
 </div>
 
-<!-- Manage Rules Modal (single modal reused) -->
+<!-- Manage Rules Modal -->
 <div class="modal fade" id="manageRulesModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg"><div class="modal-content">
     <div class="modal-header">
@@ -269,6 +266,7 @@ h1{color:var(--primary-color);font-weight:700}
         <div class="col-md-4"><label class="form-label">Condition</label><input id="rule-condition" class="form-control"></div>
         <div class="col-md-2"><button id="add-rule-btn" class="btn btn-success w-100" type="button"><i class="fas fa-plus-circle"></i></button></div>
       </form>
+
       <hr>
       <ul id="rules-list" class="list-group"></ul>
     </div>
@@ -276,36 +274,36 @@ h1{color:var(--primary-color);font-weight:700}
   </div></div>
 </div>
 
-<!-- jQuery & Bootstrap JS (CDN) -->
+<!-- jQuery & Bootstrap JS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
 
 <script>
-/*
-  Single-file working implementation:
-  - dailyScenarios is object keyed by date: { '2025-09-25': [scenarioObj, ...], ... }
-  - configurations stored in array
-  - rules for each config stored in localStorage under key 'rules_<configId>'
-  - manage rules modal reads/writes those keys
-  - image preview uses base64 DataURL stored into scenario.images array
-  - pan/zoom implemented with lightweight handler below (works on touch + mouse)
+/* Enhanced app logic based on your requests
+   - Removed Manage Rules button from add/edit scenario modal
+   - Manage Rules from config ensures config is saved first (fixes loss of rules)
+   - Report shows scenario-wise grouped view and detailed table with orange header
+   - Login button uses theme orange
+   - UI improvements and color tweaks
 */
 
 $(function(){
-  // Data
-  let dailyScenarios = JSON.parse(localStorage.getItem('dailyScenarios') || '{}'); // { date: [ {id, configId, status, explanation, rules[], images[] } ] }
-  let configurations = JSON.parse(localStorage.getItem('configurations') || '[]'); // [ {id, title, description, entryPoint, exitPoint} ]
+  // State
+  let dailyScenarios = JSON.parse(localStorage.getItem('dailyScenarios') || '{}'); // {date: [scen..]}
+  let configurations = JSON.parse(localStorage.getItem('configurations') || '[]'); // [config..]
   let currentImages = [];
-  let currentManageRulesForConfig = null; // configId context for rules modal
+  let manageRulesForConfig = null;
 
   // Helpers
-  function persist(){ localStorage.setItem('dailyScenarios', JSON.stringify(dailyScenarios)); localStorage.setItem('configurations', JSON.stringify(configurations)); }
-
+  function persistData(){
+    localStorage.setItem('dailyScenarios', JSON.stringify(dailyScenarios));
+    localStorage.setItem('configurations', JSON.stringify(configurations));
+  }
   function todayISO(){ return new Date().toISOString().slice(0,10); }
+  function escapeHtml(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 
-  // UI Renders
-
+  // UI Populate
   function populateScenarioDropdown(){
     const sel = $('#scenario-select').empty();
     sel.append('<option value="" disabled selected>Select a Scenario</option>');
@@ -315,13 +313,13 @@ $(function(){
   function renderDailyScenarios(){
     const date = $('#date-picker').val();
     const container = $('#scenario-cards-container').empty();
-    const list = (dailyScenarios[date] || []);
+    const list = dailyScenarios[date] || [];
     if (!list.length){
-      container.html('<div class="text-center small-muted p-4"><i class="fas fa-info-circle fa-2x mb-2"></i><p>No scenarios found for this date. Click "Add Scenario".</p></div>');
+      container.html('<div class="text-center small-muted p-5"><i class="fas fa-info-circle fa-2x mb-2"></i><p>No scenarios found for this date. Click "Add Scenario".</p></div>');
       return;
     }
     list.forEach(s => {
-      const cfg = configurations.find(c=>c.id==s.configId) || { title: 'Unknown' };
+      const cfg = configurations.find(c=>c.id==s.configId) || { title:'Unknown' };
       const img = (s.images && s.images.length) ? s.images[0] : 'https://via.placeholder.com/150';
       const statusClass = s.status === 'pass' ? 'pass' : (s.status === 'fail' ? 'fail' : 'not-produced');
       const card = $(`
@@ -372,20 +370,50 @@ $(function(){
   function renderReport(from=null,to=null){
     const tbody = $('#report-table tbody').empty();
     const summary = { total:0, pass:0, fail:0, 'not-produced':0 };
+    const grouped = {}; // scenarioTitle => [items]
     const rows = [];
+
     Object.keys(dailyScenarios).sort().forEach(date => {
       if (from && date < from) return;
       if (to && date > to) return;
       (dailyScenarios[date]||[]).forEach(s => {
-        const cfg = configurations.find(c=>c.id==s.configId) || { title: 'Unknown' };
+        const cfg = configurations.find(c=>c.id==s.configId) || { title:'Unknown' };
         summary.total++;
         if (s.status) summary[s.status] = (summary[s.status]||0) + 1;
         const passed = (s.rules||[]).filter(r=>r.status==='pass').length;
-        rows.push({ title: cfg.title, date, status: s.status||'N/A', passed, totalRules: (s.rules||[]).length, explanation: s.explanation||'', id: s.id });
+        rows.push({ title: cfg.title, date, status: s.status||'N/A', passed, totalRules:(s.rules||[]).length, explanation: s.explanation||'', id: s.id });
+        if (!grouped[cfg.title]) grouped[cfg.title] = [];
+        grouped[cfg.title].push({ date, status: s.status||'N/A' });
       });
     });
+
+    // summary badges
+    const total = summary.total || 0;
+    const summaryHtml = `
+      <div class="row text-center fw-bold mb-2">
+        <div class="col-md-3">Total: <span class="badge bg-primary">${total}</span></div>
+        <div class="col-md-3">Pass: <span class="badge bg-success">${summary.pass||0} (${total?((summary.pass/total*100).toFixed(1)):'0.0'}%)</span></div>
+        <div class="col-md-3">Fail: <span class="badge bg-danger">${summary.fail||0} (${total?((summary.fail/total*100).toFixed(1)):'0.0'}%)</span></div>
+        <div class="col-md-3">Not Produced: <span class="badge bg-warning">${summary['not-produced']||0} (${total?(((summary['not-produced']||0)/total*100).toFixed(1)):'0.0'}%)</span></div>
+      </div>
+    `;
+
+    // scenario-wise grouped cards
+    let groupedHtml = '<div class="mb-3">';
+    Object.keys(grouped).forEach(title => {
+      groupedHtml += `<div class="card mb-2"><div class="card-header fw-bold">${escapeHtml(title)}</div><div class="card-body"><div class="row">`;
+      grouped[title].forEach(item => {
+        groupedHtml += `<div class="col-md-3 mb-2"><div class="p-2" style="background:${item.status==='pass'?'#e8f5e9':(item.status==='fail'?'#ffebee':'#fff7e6')};border-radius:8px"><strong>${item.date}</strong><div><span class="badge ${item.status==='pass'?'badge-pass':item.status==='fail'?'badge-fail':'badge-not'}">${(item.status||'').toUpperCase()}</span></div></div></div>`;
+      });
+      groupedHtml += '</div></div></div>';
+    });
+    groupedHtml += '</div>';
+
+    $('#report-summary').html(summaryHtml + groupedHtml);
+
+    // detailed rows
     rows.forEach(r => {
-      const cls = r.status==='pass' ? 'bg-success' : (r.status==='fail' ? 'bg-danger' : 'bg-warning');
+      const cls = r.status==='pass' ? 'bg-success text-white' : (r.status==='fail' ? 'bg-danger text-white' : 'bg-warning text-dark');
       tbody.append(`<tr>
         <td>${escapeHtml(r.title)}</td>
         <td>${r.date}</td>
@@ -395,28 +423,18 @@ $(function(){
         <td><button class="btn btn-info btn-sm btn-view-report" data-id="${r.id}"><i class="fas fa-info-circle"></i> Details</button></td>
       </tr>`);
     });
-    const total = summary.total || 0;
-    $('#report-summary').html(`
-      <div class="row text-center fw-bold mb-2">
-        <div class="col-md-3">Total: <span class="badge bg-primary">${total}</span></div>
-        <div class="col-md-3">Pass: <span class="badge bg-success">${summary.pass||0} (${total?((summary.pass/total*100).toFixed(1)):'0.0'}%)</span></div>
-        <div class="col-md-3">Fail: <span class="badge bg-danger">${summary.fail||0} (${total?((summary.fail/total*100).toFixed(1)):'0.0'}%)</span></div>
-        <div class="col-md-3">Not Produced: <span class="badge bg-warning">${summary['not-produced']||0} (${total?(((summary['not-produced']||0)/total*100).toFixed(1)):'0.0'}%)</span></div>
-      </div>
-    `);
   }
 
-  // Escape helper
-  function escapeHtml(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
-
-  // Init UI with today's date
+  // Init defaults
   $('#date-picker').val(todayISO());
 
-  // LOGIN
+  // Event bindings
+
+  // Login
   $('#login-form').on('submit', function(e){
     e.preventDefault();
     const u = $('#username').val().trim(), p = $('#password').val();
-    if (u==='local' && p==='local1234'){
+    if (u === 'local' && p === 'local1234'){
       $('#login-page').hide();
       $('#main-app').show();
       populateScenarioDropdown();
@@ -424,11 +442,11 @@ $(function(){
       renderConfigurations();
       renderReport();
     } else {
-      $('#login-error').text('Invalid username/password').show();
+      $('#login-error').text('Invalid username or password').show();
     }
   });
 
-  // Add New Scenario open
+  // Open Add Scenario modal
   $('#add-new-scenario').on('click', function(){
     $('#scenario-form')[0].reset();
     $('#daily-scenario-id').val('');
@@ -450,10 +468,9 @@ $(function(){
     }
     const rules = JSON.parse(localStorage.getItem('rules_' + cfgId) || '[]');
     if (!rules.length){
-      $('#daily-rules-container').html('<div class="alert alert-warning text-center">No rules configured for this scenario. Use Manage Rules to add.</div>');
+      $('#daily-rules-container').html('<div class="alert alert-warning text-center">No rules configured for this scenario. Use Manage Rules in Configuration to add.</div>');
       return;
     }
-    // default to pass + empty comment for new scenario
     rules.forEach(r => {
       $('#daily-rules-container').append(`
         <div class="card p-2 mb-2 rule-item" data-rule-id="${r.id}">
@@ -507,13 +524,9 @@ $(function(){
     });
   }
 
-  $(document).on('click', '.remove-btn', function(){
-    const idx = $(this).data('index');
-    currentImages.splice(idx,1);
-    renderImagePreviews();
-  });
+  $(document).on('click', '.remove-btn', function(){ const idx = $(this).data('index'); currentImages.splice(idx,1); renderImagePreviews(); });
 
-  // Save Scenario
+  // SAVE scenario with robust date-keyed storage
   $('#save-daily-scenario').on('click', function(){
     const id = $('#daily-scenario-id').val() || Date.now().toString();
     const cfgId = $('#scenario-select').val();
@@ -525,71 +538,70 @@ $(function(){
     if (!date){ alert('Select a date'); return; }
     if (!status){ alert('Select a status'); return; }
 
-    // collect rules as array from daily rules container
+    // collect rules (if any)
     const rules = [];
     $('#daily-rules-container .rule-item').each(function(){
       const ruleId = $(this).data('rule-id');
-      const status = $(this).find('.status-select').val();
+      const ruleStatus = $(this).find('.status-select').val();
       const comment = $(this).find('.comment-input').val();
-      rules.push({ id: ruleId, status, comment });
+      rules.push({ id: ruleId, status: ruleStatus, comment });
     });
 
-    // if no rules (maybe none configured), keep empty []
-    const scenario = { id, configId: cfgId, status, explanation, rules, images: currentImages.slice() };
+    // scenario object
+    const scenarioObj = { id, configId: cfgId, status, explanation, rules, images: currentImages.slice() };
 
-    // ensure date bucket
-    if (!dailyScenarios[date]) dailyScenarios[date] = [];
-    // remove existing with same id across this date and others (prevent duplicates)
+    // remove this id anywhere it exists (prevent duplicates across dates)
     Object.keys(dailyScenarios).forEach(d => {
       dailyScenarios[d] = (dailyScenarios[d] || []).filter(s => s.id !== id);
       if (!dailyScenarios[d].length) delete dailyScenarios[d];
     });
-    // push to chosen date
-    dailyScenarios[date].push(scenario);
-    persist();
 
-    // close modal reliably
+    // ensure date bucket and push
+    if (!dailyScenarios[date]) dailyScenarios[date] = [];
+    dailyScenarios[date].push(scenarioObj);
+
+    persistData();
+
+    // close modal
     bootstrap.Modal.getOrCreateInstance(document.getElementById('addScenarioModal')).hide();
 
-    // reset
+    // reset form and images
     $('#scenario-form')[0].reset();
     $('#image-preview-container').empty();
     currentImages = [];
     $('#daily-scenario-id').val('');
 
-    // refresh
+    // refresh views
     renderDailyScenarios();
     renderReport();
   });
 
-  // Edit / View / Delete handlers
+  // Edit/View/Delete handlers
   $(document).on('click', '.btn-edit', function(){
     const id = $(this).data('id');
-    // find scenario in all dates
     let found = null, foundDate = null;
     Object.keys(dailyScenarios).forEach(d=>{
-      dailyScenarios[d].forEach(s=>{
-        if (s.id == id){ found = s; foundDate = d; }
-      });
+      dailyScenarios[d].forEach(s=>{ if (s.id == id){ found = s; foundDate = d; }});
     });
     if (!found) return alert('Scenario not found');
+
     $('#daily-scenario-id').val(found.id);
     $('#status-select').val(found.status);
     $('#explanation-input').val(found.explanation);
-    currentImages = (found.images || []).slice();
+    currentImages = (found.images||[]).slice();
     renderImagePreviews();
 
     populateScenarioDropdown();
     $('#scenario-select').val(found.configId).trigger('change');
 
-    // populate rules area by matching saved values to rule definitions
+    // populate rules area with saved values
     const defs = JSON.parse(localStorage.getItem('rules_' + found.configId) || '[]');
     const container = $('#daily-rules-container').empty();
     if (!defs.length){
       container.html('<div class="alert alert-warning text-center">No rules configured for this scenario config.</div>');
     } else {
       defs.forEach(def => {
-        const saved = (found.rules || []).find(r=>r.id==def.id) || { status:'pass', comment:'' };
+        const saved = (found.rules||[]).find(r=>r.id==def.id) || { status:'pass', comment:'' };
         container.append(`
           <div class="card p-2 mb-2 rule-item" data-rule-id="${def.id}">
             <h6 class="mb-1">${escapeHtml(def.name)}</h6>
@@ -615,9 +627,9 @@ $(function(){
     });
     if (!found) return alert('Scenario not found');
 
-    const cfg = configurations.find(c => c.id == found.configId) || { title: 'Unknown' };
-    let rulesHtml = '<div class="alert alert-info">No rules configured.</div>';
+    const cfg = configurations.find(c=>c.id==found.configId) || { title:'Unknown' };
     const defs = JSON.parse(localStorage.getItem('rules_' + found.configId) || '[]');
+    let rulesHtml = '<div class="alert alert-info">No rules configured.</div>';
     if (found.rules && found.rules.length && defs.length){
       rulesHtml = '<ul class="list-group">';
       found.rules.forEach(r=>{
@@ -642,15 +654,14 @@ $(function(){
       <div class="row">${imagesHtml}</div>
     `);
 
-    // store context for manage rules from view
-    currentManageRulesForConfig = found.configId;
+    // store context for manage rules if user opens from view (we disable direct manage button here)
+    manageRulesForConfig = found.configId;
     $('#rules-scenario-title').text( configurations.find(c=>c.id==found.configId)?.title || '' );
 
-    // show modal
     bootstrap.Modal.getOrCreateInstance(document.getElementById('viewScenarioModal')).show();
 
-    // initialize zoom handlers for each image in view modal
-    setTimeout(()=>{ initPanZoomFor('.zoom-img'); }, 100);
+    // init simple pan/zoom for images
+    setTimeout(()=>{ initPanZoom('.zoom-img'); }, 100);
   });
 
   $(document).on('click', '.btn-delete', function(){
@@ -660,20 +671,18 @@ $(function(){
       dailyScenarios[d] = (dailyScenarios[d]||[]).filter(s=>s.id!=id);
       if (!dailyScenarios[d].length) delete dailyScenarios[d];
     });
-    persist();
+    persistData();
     renderDailyScenarios();
     renderReport();
   });
 
-  // REPORT: details from report list
+  // Report details button triggers view
   $(document).on('click', '.btn-view-report', function(){
     const id = $(this).data('id');
-    // reuse btn-view handler by simulating click on card's view button if present
-    // find the scenario and call view flow
     $(`.btn-view[data-id="${id}"]`).trigger('click');
   });
 
-  // CONFIG: add new
+  // Config CRUD
   $('#open-add-config').on('click', function(){
     $('#config-form')[0].reset();
     $('#config-id').val('');
@@ -681,30 +690,24 @@ $(function(){
     bootstrap.Modal.getOrCreateInstance(document.getElementById('addConfigModal')).show();
   });
 
-  // save config
   $('#save-config').on('click', function(){
     const id = $('#config-id').val() || Date.now().toString();
     const title = $('#config-title').val().trim();
     if (!title) return alert('Enter title');
     const description = $('#config-description').val();
-    const entryPoint = $('#entry-point').val();
-    const exitPoint = $('#exit-point').val();
-
-    const existingIndex = configurations.findIndex(c=>c.id==id);
-    const cfg = { id, title, description, entryPoint, exitPoint };
-    if (existingIndex >= 0) configurations[existingIndex] = cfg; else configurations.push(cfg);
-
-    // ensure rules storage exists
-    const key = 'rules_' + id;
-    if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify([]));
-
-    persist();
+    const entry = $('#entry-point').val();
+    const exit = $('#exit-point').val();
+    const idx = configurations.findIndex(c=>c.id==id);
+    const cfg = { id, title, description, entryPoint: entry, exitPoint: exit };
+    if (idx >= 0) configurations[idx] = cfg; else configurations.push(cfg);
+    // ensure rules bucket exists
+    if (!localStorage.getItem('rules_' + id)) localStorage.setItem('rules_' + id, JSON.stringify([]));
+    persistData();
     renderConfigurations();
     populateScenarioDropdown();
     bootstrap.Modal.getOrCreateInstance(document.getElementById('addConfigModal')).hide();
   });
 
-  // view config
   $(document).on('click', '.btn-view-config', function(){
     const id = $(this).data('id');
     const cfg = configurations.find(c=>c.id==id);
@@ -715,7 +718,6 @@ $(function(){
     bootstrap.Modal.getOrCreateInstance(document.getElementById('viewConfigModal')).show();
   });
 
-  // edit config
   $(document).on('click', '.btn-edit-config', function(){
     const id = $(this).data('id');
     const cfg = configurations.find(c=>c.id==id);
@@ -729,25 +731,22 @@ $(function(){
     bootstrap.Modal.getOrCreateInstance(document.getElementById('addConfigModal')).show();
   });
 
-  // delete config
   $(document).on('click', '.btn-delete-config', function(){
     const id = $(this).data('id');
-    if (!confirm('Delete configuration and all related scenarios?')) return;
+    if (!confirm('Delete configuration and related scenarios?')) return;
     configurations = configurations.filter(c=>c.id!=id);
-    // remove related scenarios
     Object.keys(dailyScenarios).forEach(d=>{
       dailyScenarios[d] = (dailyScenarios[d]||[]).filter(s=>s.configId!=id);
       if (!dailyScenarios[d].length) delete dailyScenarios[d];
     });
     localStorage.removeItem('rules_' + id);
-    persist();
+    persistData();
     renderConfigurations();
     renderDailyScenarios();
     renderReport();
     populateScenarioDropdown();
   });
 
-  // copy config
   $(document).on('click', '.btn-copy-config', function(){
     const id = $(this).data('id');
     const cfg = configurations.find(c=>c.id==id);
@@ -756,66 +755,66 @@ $(function(){
     newCfg.id = Date.now().toString();
     newCfg.title = cfg.title + ' (Copy)';
     configurations.push(newCfg);
-    // copy rules storage
     const rules = JSON.parse(localStorage.getItem('rules_' + id) || '[]');
     localStorage.setItem('rules_' + newCfg.id, JSON.stringify(rules));
-    persist();
+    persistData();
     renderConfigurations();
     populateScenarioDropdown();
   });
 
   // Manage rules from config modal
   $('#manage-config-rules').on('click', function(){
-    // prepare context: if editing config, config-id; else 'new' placeholder
-    const cfgId = $('#config-id').val() || ('temp_new');
-    currentManageRulesForConfig = cfgId;
+    let cfgId = $('#config-id').val();
+    // If config isn't saved yet, create and persist it first
+    if(!cfgId){
+      cfgId = Date.now().toString();
+      $('#config-id').val(cfgId);
+      const title = $('#config-title').val().trim() || 'Untitled';
+      const description = $('#config-description').val() || '';
+      const entry = $('#entry-point').val() || '';
+      const exit = $('#exit-point').val() || '';
+      const cfg = { id: cfgId, title, description, entryPoint: entry, exitPoint: exit };
+      configurations.push(cfg);
+      // ensure rules bucket exists
+      if (!localStorage.getItem('rules_' + cfgId)) localStorage.setItem('rules_' + cfgId, JSON.stringify([]));
+      persistData();
+      renderConfigurations();
+      populateScenarioDropdown();
+    }
+    manageRulesForConfig = cfgId;
     $('#rules-scenario-title').text($('#config-title').val() || 'Untitled');
-    // load rules
     const rules = JSON.parse(localStorage.getItem('rules_' + cfgId) || '[]');
     renderRulesList(rules);
-    // hide config modal and show manage rules
     bootstrap.Modal.getOrCreateInstance(document.getElementById('addConfigModal')).hide();
     bootstrap.Modal.getOrCreateInstance(document.getElementById('manageRulesModal')).show();
   });
 
-  // Manage rules from scenario modal (should fetch rules from selected config)
-  $('#manage-rules-from-scenario').on('click', function(){
-    const cfgId = $('#scenario-select').val();
-    if (!cfgId) return alert('Select a scenario configuration first');
-    currentManageRulesForConfig = cfgId;
-    $('#rules-scenario-title').text($('#scenario-select option:selected').text() || '');
-    const rules = JSON.parse(localStorage.getItem('rules_' + cfgId) || '[]');
-    renderRulesList(rules);
-    bootstrap.Modal.getOrCreateInstance(document.getElementById('addScenarioModal')).hide();
-    bootstrap.Modal.getOrCreateInstance(document.getElementById('manageRulesModal')).show();
-  });
-
-  // Manage rules from view modal
+  // Manage rules from view modal (hidden manage button earlier; this keeps capability)
   $('#view-manage-rules').on('click', function(){
-    if (!currentManageRulesForConfig) return alert('No configuration context for rules in view.');
-    $('#rules-scenario-title').text( configurations.find(c=>c.id==currentManageRulesForConfig)?.title || '');
-    const rules = JSON.parse(localStorage.getItem('rules_' + currentManageRulesForConfig) || '[]');
+    if (!manageRulesForConfig) return alert('No configuration context for rules');
+    $('#rules-scenario-title').text( configurations.find(c=>c.id==manageRulesForConfig)?.title || '');
+    const rules = JSON.parse(localStorage.getItem('rules_' + manageRulesForConfig) || '[]');
     renderRulesList(rules);
     bootstrap.Modal.getOrCreateInstance(document.getElementById('viewScenarioModal')).hide();
     bootstrap.Modal.getOrCreateInstance(document.getElementById('manageRulesModal')).show();
   });
 
-  // Render rules list helper for manageRulesModal
+  // Render rules list in manage rules modal
   function renderRulesList(rules){
     const list = $('#rules-list').empty();
     if (!rules.length) list.html('<div class="alert alert-info">No rules yet. Add one below.</div>');
-    rules.forEach(r=>{
+    rules.forEach(r => {
       list.append(`<li class="list-group-item d-flex justify-content-between align-items-center" data-id="${r.id}"><div><h6 class="mb-0">${escapeHtml(r.name)}</h6><small class="text-muted">${escapeHtml(r.condition||'')}</small></div><button class="btn btn-danger btn-sm remove-rule" data-id="${r.id}"><i class="fas fa-times"></i></button></li>`);
     });
   }
 
-  // Add rule in manageRulesModal
+  // Add rule in manage rules modal
   $('#add-rule-btn').on('click', function(){
     const name = $('#rule-name').val().trim();
     if (!name) return alert('Enter rule name');
     const condition = $('#rule-condition').val();
     const id = Date.now().toString();
-    const key = 'rules_' + currentManageRulesForConfig;
+    const key = 'rules_' + manageRulesForConfig;
     const rules = JSON.parse(localStorage.getItem(key) || '[]');
     rules.push({ id, name, condition });
     localStorage.setItem(key, JSON.stringify(rules));
@@ -823,36 +822,28 @@ $(function(){
     renderRulesList(rules);
   });
 
-  // remove rule
+  // Remove rule
   $(document).on('click', '.remove-rule', function(){
     const id = $(this).data('id');
-    const key = 'rules_' + currentManageRulesForConfig;
+    const key = 'rules_' + manageRulesForConfig;
     let rules = JSON.parse(localStorage.getItem(key) || '[]');
     rules = rules.filter(r=>r.id!=id);
     localStorage.setItem(key, JSON.stringify(rules));
     renderRulesList(rules);
   });
 
-  // When manageRulesModal closed, show appropriate modal again (config or scenario or view) depending on context
+  // When closing manageRulesModal, reopen the modal we came from (config or scenario) for continuity
   $('#manageRulesModal').on('hidden.bs.modal', function(){
-    // If we came from config modal (config form has data) reopen it
-    const cfgId = $('#config-id').val();
-    if ($('#config-title').val() || cfgId) {
-      // show addConfigModal if there is something to edit (user expectation)
-      bootstrap.Modal.getOrCreateInstance(document.getElementById('addConfigModal')).show();
-    } else if ($('#addScenarioModal').length){
-      // if scenario modal's scenario-select equals currentManageRulesForConfig, reopen scenario modal
-      // We'll always reopen scenario modal for continuity
-      bootstrap.Modal.getOrCreateInstance(document.getElementById('addScenarioModal')).show();
-    }
-    // ensure dropdowns / rules UI reflect newly saved rules
+    // Refresh dropdowns / lists
     populateScenarioDropdown();
-    // if scenario modal is open and the selected config matches currentManageRulesForConfig, refresh its rules area
-    const sel = $('#scenario-select').val();
-    if (sel && sel === currentManageRulesForConfig){
-      $('#scenario-select').trigger('change');
+    renderConfigurations();
+    // reopen addConfigModal if we were editing config (config title or id present)
+    if ($('#config-title').val() || $('#config-id').val()) {
+      bootstrap.Modal.getOrCreateInstance(document.getElementById('addConfigModal')).show();
+    } else {
+      // reopen scenario modal if it was previously open
+      if ($('#addScenarioModal')) bootstrap.Modal.getOrCreateInstance(document.getElementById('addScenarioModal')).show();
     }
-    // if view scenario modal was open earlier, that was closed when manageRules opened; we won't reopen automatically to avoid complex state.
   });
 
   // Report filter
@@ -862,97 +853,43 @@ $(function(){
     renderReport(from,to);
   });
 
-  // Refresh / date change
+  // Refresh and date change
   $('#refresh-daily').on('click', function(){ renderDailyScenarios(); });
   $('#date-picker').on('change', function(){ renderDailyScenarios(); });
 
-  // Init small pan/zoom for images (lightweight) - works on touch and mouse
-  function initPanZoomFor(selector){
-    document.querySelectorAll(selector).forEach(img=>{
-      setupPanZoom(img);
-    });
-  }
-
-  function setupPanZoom(img){
-    if (!img) return;
-    // avoid multiple initializations
-    if (img._pzInit) return;
-    img._pzInit = true;
-
-    let scale = 1, lastScale = 1;
-    let start = null, origin = {x:0,y:0}, pos = {x:0,y:0}, lastPos = {x:0,y:0};
-    img.style.transformOrigin = '0 0';
-    img.style.touchAction = 'none';
-
-    // pointer events for pan
-    let pointers = {};
-    let pointersLen = () => Object.keys(pointers).length;
-
-    function setTransform(){
-      img.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(${scale})`;
-    }
-
-    img.addEventListener('pointerdown', e=>{
-      img.setPointerCapture(e.pointerId);
-      pointers[e.pointerId] = { x:e.clientX, y:e.clientY };
-      start = true;
-    });
-
-    img.addEventListener('pointermove', e=>{
-      if (!pointers[e.pointerId]) return;
-      pointers[e.pointerId] = { x:e.clientX, y:e.clientY };
-      const pts = Object.values(pointers);
-      if (pts.length === 1){
-        // pan
-        const dx = pts[0].x - (startX||pts[0].x);
-      }
-      if (pts.length === 1){
-        // single pointer pan
-        const p = pts[0];
-        // compute delta from lastPos
-        if (!img._lastPointer) img._lastPointer = { x:p.x, y:p.y };
-        const dx = p.x - img._lastPointer.x;
-        const dy = p.y - img._lastPointer.y;
-        pos.x += dx; pos.y += dy;
-        img._lastPointer = { x:p.x, y:p.y };
-        setTransform();
-      } else if (pts.length === 2){
-        // pinch to zoom
-        const [p1,p2] = pts;
-        const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
-        if (!img._baseDist) { img._baseDist = dist; img._baseScale = scale; }
-        else {
-          const ratio = dist / img._baseDist;
-          scale = Math.min(5, Math.max(1, img._baseScale * ratio));
-          setTransform();
+  // Simple pan/zoom for images (lightweight)
+  function initPanZoom(selector){
+    document.querySelectorAll(selector).forEach(img => {
+      if (img._pz) return;
+      img._pz = true;
+      let scale = 1, pos = {x:0,y:0}, last = null, pointers = {};
+      img.style.transformOrigin = '0 0';
+      img.style.touchAction = 'none';
+      img.addEventListener('pointerdown', e => { img.setPointerCapture(e.pointerId); pointers[e.pointerId] = {x:e.clientX,y:e.clientY}; last = {x:e.clientX,y:e.clientY}; });
+      img.addEventListener('pointermove', e => {
+        if (!pointers[e.pointerId]) return;
+        pointers[e.pointerId] = {x:e.clientX,y:e.clientY};
+        const ks = Object.keys(pointers).length;
+        if (ks === 1 && last){
+          const dx = e.clientX - last.x;
+          const dy = e.clientY - last.y;
+          pos.x += dx; pos.y += dy;
+          img.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(${scale})`;
+          last = {x:e.clientX,y:e.clientY};
+        } else if (ks === 2){
+          const pts = Object.values(pointers);
+          const dist = Math.hypot(pts[0].x-pts[1].x, pts[0].y-pts[1].y);
+          if (!img._baseDist){ img._baseDist = dist; img._baseScale = scale; }
+          else { scale = Math.max(1, Math.min(5, img._baseScale * (dist / img._baseDist))); img.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(${scale})`; }
         }
-      }
-    });
-
-    img.addEventListener('pointerup', e=>{
-      delete pointers[e.pointerId];
-      img._lastPointer = null;
-      img._baseDist = null;
-      img._baseScale = scale;
-    });
-    img.addEventListener('pointercancel', e=>{
-      delete pointers[e.pointerId];
-      img._lastPointer = null;
-      img._baseDist = null;
-      img._baseScale = scale;
-    });
-
-    // wheel zoom (desktop)
-    img.addEventListener('wheel', e=>{
-      e.preventDefault();
-      const delta = -e.deltaY;
-      const factor = delta > 0 ? 1.08 : 0.92;
-      scale = Math.max(1, Math.min(5, scale * factor));
-      setTransform();
+      });
+      img.addEventListener('pointerup', e => { delete pointers[e.pointerId]; last = null; img._baseDist = null; img._baseScale = scale; });
+      img.addEventListener('pointercancel', e => { delete pointers[e.pointerId]; last = null; img._baseDist = null; img._baseScale = scale; });
+      img.addEventListener('wheel', e => { e.preventDefault(); const factor = e.deltaY < 0 ? 1.08 : 0.92; scale = Math.max(1, Math.min(5, scale*factor)); img.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(${scale})`; });
     });
   }
 
-  // On load render
+  // Initial render
   (function init(){
     populateScenarioDropdown();
     renderDailyScenarios();
@@ -960,11 +897,16 @@ $(function(){
     renderReport();
   })();
 
-  // Utility: when storage changed in another tab
-  window.addEventListener('storage', function(){ dailyScenarios = JSON.parse(localStorage.getItem('dailyScenarios')||'{}'); configurations = JSON.parse(localStorage.getItem('configurations')||'[]'); populateScenarioDropdown(); renderDailyScenarios(); renderConfigurations(); renderReport(); });
+  // Persist on storage event (other tabs)
+  window.addEventListener('storage', function(){
+    dailyScenarios = JSON.parse(localStorage.getItem('dailyScenarios') || '{}');
+    configurations = JSON.parse(localStorage.getItem('configurations') || '[]');
+    populateScenarioDropdown();
+    renderDailyScenarios();
+    renderConfigurations();
+    renderReport();
+  });
 
-  // small convenience: clicking on Manage Rules from config list (button .btn-edit-config opens config modal; manage rules button only inside add/edit config or scenario or view)
-  // but also provide direct manage rules for configuration list via click on title (not necessary)
 });
 </script>
 </body>
