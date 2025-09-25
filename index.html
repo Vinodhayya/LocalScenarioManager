@@ -1,1194 +1,971 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Stock Scenario Manager - Fixed</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Stock Scenario Manager — Fixed Single File</title>
 
-  <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<!-- Fonts & Icons (CDN) -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
 
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap CSS (CDN) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <style>
-    :root{
-      /* sandal orange primary */
-      --primary-color: #ff9800;
-      --secondary-color: #6c757d;
-      --success-color: #28a745;
-      --danger-color: #dc3545;
-      --warning-color: #ffc107;
-      --info-color: #17a2b8;
-      --light-bg: #f8f9fa;
-      --card-bg: #ffffff;
-      --body-bg: #fbf7f2;
-      --muted: #6b6b6b;
-    }
+<style>
+:root{
+  --primary-color:#ff9800; /* sandal orange */
+  --secondary:#6c757d;
+  --success:#28a745;
+  --danger:#dc3545;
+  --warning:#ffc107;
+  --muted:#6b6b6b;
+  --bg:#fbf7f2;
+  --card:#ffffff;
+}
+*{box-sizing:border-box}
+body{
+  font-family:'Poppins',sans-serif;
+  background:linear-gradient(180deg,#fff 0%,var(--bg) 100%);
+  color:#222;
+  -webkit-font-smoothing:antialiased;
+}
+.container{max-width:1200px;margin-top:28px}
+h1{color:var(--primary-color);font-weight:700}
 
-    html,body{height:100%}
-    body{
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(180deg, #fff 0%, #fbf7f2 100%);
-      color:#333;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-    }
-
-    .container{max-width:1200px;margin-top:30px}
-    h1{color:var(--primary-color);font-weight:700}
-
-    .card{border:none;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,0.06)}
-    .nav-tabs .nav-link{font-weight:600;color:var(--muted);border:none;padding:12px 18px}
-    .nav-tabs .nav-link.active{color:var(--primary-color);border-bottom:3px solid var(--primary-color);background:transparent}
-    .tab-content{background:var(--card-bg);padding:22px;border-radius:12px}
-
-    .btn{font-weight:600;border-radius:10px}
-    .btn-primary{background:var(--primary-color);border-color:var(--primary-color);color:#fff}
-    .btn-primary:hover{filter:brightness(.98)}
-    .form-control{border-radius:8px}
-    .form-select{border-radius:8px}
-
-    /* scenario cards */
-    .scenario-card{display:flex;gap:16px;align-items:center;padding:16px;border-radius:12px;background:#fff;border:1px solid #eee}
-    .scenario-card img{width:110px;height:80px;object-fit:cover;border-radius:8px}
-    .scenario-status{font-weight:700;padding:5px 10px;border-radius:8px;color:#fff;font-size:.82rem;text-transform:uppercase}
-    .pass{background:var(--success-color)} .fail{background:var(--danger-color)} .not-produced{background:var(--warning-color)}
-
-    /* preview images */
-    .image-preview-item img{width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #ddd}
-    .image-preview-item .remove-btn{position:absolute;top:-6px;right:-6px;background:var(--danger-color);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer}
-
-    /* login */
-    #login-page{display:flex;justify-content:center;align-items:center;min-height:100vh;background-image:url('https://source.unsplash.com/random/1920x1080?stock-market,chart');background-size:cover;background-position:center;position:relative}
-    .login-container{width:360px;padding:36px;background:linear-gradient(180deg,var(--primary-color),#ffb86b);border-radius:12px;color:#fff;box-shadow:0 8px 30px rgba(0,0,0,0.18)}
-    .login-container h2{font-weight:800}
-    .login-container .form-control{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff}
-    .login-container .btn-primary{background:#fff;color:var(--primary-color);font-weight:700;border-radius:10px;padding:10px 14px}
-
-    /* small responsive tweaks */
-    @media (max-width:767px){
-      .scenario-card{flex-direction:row}
-      .scenario-card img{width:90px;height:70px}
-    }
-    .zoom-container{overflow:hidden;border-radius:8px}
-    .zoomable-img{max-width:100%;height:auto;touch-action:none}
-  </style>
+.card{border:none;border-radius:12px;box-shadow:0 8px 26px rgba(0,0,0,0.06)}
+.nav-tabs .nav-link{font-weight:600;color:var(--muted);border:none;padding:12px 18px}
+.nav-tabs .nav-link.active{color:var(--primary-color);border-bottom:3px solid var(--primary-color);background:transparent}
+.tab-content{background:var(--card);padding:20px;border-radius:12px}
+.btn-primary{background:var(--primary-color);border-color:var(--primary-color)}
+.btn-primary:focus,.btn-primary:active{box-shadow:none}
+.form-control,.form-select{border-radius:8px}
+.scenario-card{display:flex;gap:16px;align-items:center;padding:14px;border-radius:12px;background:#fff;border:1px solid #eee}
+.scenario-card img{width:120px;height:80px;object-fit:cover;border-radius:8px}
+.scenario-status{font-weight:700;padding:6px 10px;border-radius:8px;color:#fff;font-size:.8rem;text-transform:uppercase}
+.pass{background:var(--success)}.fail{background:var(--danger)}.not-produced{background:var(--warning)}
+.image-preview-item img{width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #ddd}
+.image-preview-item .remove-btn{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer}
+.login-wrap{display:flex;justify-content:center;align-items:center;min-height:100vh;background-image:url('https://source.unsplash.com/random/1600x900?finance,stock');background-size:cover;background-position:center}
+.login-container{width:360px;padding:32px;background:linear-gradient(180deg,var(--primary-color),#ffb86b);border-radius:12px;color:#fff;box-shadow:0 8px 30px rgba(0,0,0,0.18)}
+.login-container h2{font-weight:800}
+.zoom-wrap{overflow:hidden;border-radius:8px}
+.zoom-img{max-width:100%;height:auto;touch-action:none;user-select:none;-webkit-user-drag:none}
+.small-muted{color:var(--muted)}
+@media (max-width:767px){
+  .scenario-card{flex-direction:row}
+  .scenario-card img{width:90px;height:70px}
+}
+</style>
 </head>
 <body>
 
-  <!-- LOGIN -->
-  <div id="login-page">
-    <div class="login-container text-center">
-      <h2 class="mb-3">Stock Scenario Manager</h2>
-      <p class="mb-4">Login with Username & Password</p>
-      <form id="login-form">
-        <div class="mb-3">
-          <input type="text" class="form-control" id="username" placeholder="Username" required>
+<!-- LOGIN -->
+<div id="login-page" class="login-wrap">
+  <div class="login-container text-center">
+    <h2 class="mb-2">Stock Scenario Manager</h2>
+    <p class="mb-3">Login with Username & Password</p>
+    <form id="login-form">
+      <div class="mb-2"><input class="form-control" id="username" placeholder="Username" required></div>
+      <div class="mb-2"><input type="password" class="form-control" id="password" placeholder="Password" required></div>
+      <button class="btn btn-light w-100 fw-bold" type="submit">Login</button>
+      <div id="login-error" class="mt-3 small text-white" style="display:none"></div>
+    </form>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="main-app" class="container" style="display:none">
+  <h1 class="text-center mb-4">Stock Scenario Manager</h1>
+
+  <ul class="nav nav-tabs mb-4" id="tabs">
+    <li class="nav-item"><button class="nav-link active" data-bs-target="#daily" data-bs-toggle="tab">Daily Scenario</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-target="#report" data-bs-toggle="tab">Report</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-target="#config" data-bs-toggle="tab">Configuration</button></li>
+  </ul>
+
+  <div class="tab-content">
+    <!-- DAILY -->
+    <div class="tab-pane fade show active" id="daily">
+      <div class="row align-items-end mb-3">
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Select Date</label>
+          <input type="date" id="date-picker" class="form-control">
         </div>
-        <div class="mb-3">
-          <input type="password" class="form-control" id="password" placeholder="Password" required>
+        <div class="col-md-8 text-end">
+          <button id="add-new-scenario" class="btn btn-primary"><i class="fas fa-plus-circle me-1"></i> Add Scenario</button>
+          <button id="refresh-daily" class="btn btn-secondary"><i class="fas fa-sync me-1"></i> Refresh</button>
         </div>
-        <button class="btn btn-primary w-100" type="submit">Login</button>
-        <div id="login-error" class="text-center mt-3" style="display:none;color:#fff;background:rgba(0,0,0,0.12);padding:8px;border-radius:8px"></div>
+      </div>
+      <hr />
+      <div id="scenario-cards-container">
+        <div class="text-center small-muted p-5">
+          <i class="fas fa-info-circle fa-2x mb-2"></i>
+          <p>No scenarios found for this date. Click "Add Scenario" to start.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORT -->
+    <div class="tab-pane fade" id="report">
+      <h4 class="mb-3">Scenario Report</h4>
+      <div class="card p-3 mb-3">
+        <div class="row g-2">
+          <div class="col-md-4"><label class="form-label">From Date</label><input type="date" id="report-from" class="form-control"></div>
+          <div class="col-md-4"><label class="form-label">To Date</label><input type="date" id="report-to" class="form-control"></div>
+          <div class="col-md-4 d-flex align-items-end"><button id="filter-report" class="btn btn-primary w-100">Filter</button></div>
+        </div>
+      </div>
+
+      <div id="report-summary" class="mb-3"></div>
+
+      <div class="card">
+        <div class="card-header fw-bold">Detailed Report</div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped" id="report-table">
+              <thead class="table-dark">
+                <tr><th>Scenario Title</th><th>Date</th><th>Status</th><th>Rules Passed</th><th>Explanation</th><th>Actions</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIG -->
+    <div class="tab-pane fade" id="config">
+      <div class="text-end mb-3">
+        <button class="btn btn-success" id="open-add-config"><i class="fas fa-plus me-1"></i> Add New Configuration</button>
+      </div>
+      <div id="config-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+
+<!-- Add/Edit Scenario Modal -->
+<div class="modal fade" id="addScenarioModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addScenarioTitle">Add Daily Scenario</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="scenario-form">
+          <input type="hidden" id="daily-scenario-id" />
+          <div class="mb-3">
+            <label class="form-label">Scenario</label>
+            <select id="scenario-select" class="form-select" required></select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select id="status-select" class="form-select" required>
+              <option value="" disabled selected>Select Status</option>
+              <option value="pass">Pass</option>
+              <option value="fail">Fail</option>
+              <option value="not-produced">Not Produced</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Explanation</label>
+            <textarea id="explanation-input" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Image Upload</label>
+            <input id="image-upload" type="file" class="form-control" accept="image/*" multiple>
+            <div id="image-preview-container" class="d-flex flex-wrap gap-2 mt-2"></div>
+          </div>
+          <hr />
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0">Manage Rules</h6>
+            <button type="button" id="manage-rules-from-scenario" class="btn btn-outline-primary btn-sm"><i class="fas fa-tasks me-1"></i> Manage Rules</button>
+          </div>
+          <div id="daily-rules-container">
+            <div class="alert alert-info text-center">Select a scenario to load rules.</div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button id="save-daily-scenario" class="btn btn-primary">Save Scenario</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- View Scenario Modal -->
+<div class="modal fade" id="viewScenarioModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Scenario Details</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="view-scenario-body"></div>
+      <div class="modal-footer">
+        <button id="view-manage-rules" class="btn btn-outline-primary"><i class="fas fa-tasks me-1"></i> Manage Rules</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Config Modal -->
+<div class="modal fade" id="addConfigModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="configModalTitle">Add Configuration</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="config-form">
+          <input type="hidden" id="config-id">
+          <div class="mb-3">
+            <label class="form-label">Scenario Title</label>
+            <input id="config-title" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea id="config-description" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3"><label class="form-label">Entry Point</label><input id="entry-point" class="form-control"></div>
+            <div class="col-md-6 mb-3"><label class="form-label">Exit Point</label><input id="exit-point" class="form-control"></div>
+          </div>
+          <div class="text-end">
+            <button id="manage-config-rules" type="button" class="btn btn-outline-primary"><i class="fas fa-tasks me-1"></i> Manage Rules</button>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="save-config" class="btn btn-primary">Save Configuration</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- View Config Modal -->
+<div class="modal fade" id="viewConfigModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Configuration Details</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-body" id="view-config-body"></div>
+    <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Close</button></div>
+  </div></div>
+</div>
+
+<!-- Manage Rules Modal (single modal reused) -->
+<div class="modal fade" id="manageRulesModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg"><div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">Manage Rules for <span id="rules-scenario-title" class="text-primary"></span></h5>
+      <button class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body">
+      <form id="add-rule-form" class="row g-2 mb-3 align-items-end">
+        <div class="col-md-6"><label class="form-label">Rule Name</label><input id="rule-name" class="form-control"></div>
+        <div class="col-md-4"><label class="form-label">Condition</label><input id="rule-condition" class="form-control"></div>
+        <div class="col-md-2"><button id="add-rule-btn" class="btn btn-success w-100" type="button"><i class="fas fa-plus-circle"></i></button></div>
       </form>
+      <hr>
+      <ul id="rules-list" class="list-group"></ul>
     </div>
-  </div>
+    <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Done</button></div>
+  </div></div>
+</div>
 
-  <!-- MAIN APP -->
-  <div id="main-app" class="container my-5" style="display:none">
-    <h1 class="text-center mb-4">Stock Scenario Manager</h1>
+<!-- jQuery & Bootstrap JS (CDN) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
 
-    <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
-      <li class="nav-item"><button class="nav-link active" id="daily-scenario-tab" data-bs-toggle="tab" data-bs-target="#daily-scenario" type="button">Daily Scenario</button></li>
-      <li class="nav-item"><button class="nav-link" id="report-tab" data-bs-toggle="tab" data-bs-target="#report" type="button">Report</button></li>
-      <li class="nav-item"><button class="nav-link" id="configuration-tab" data-bs-toggle="tab" data-bs-target="#configuration" type="button">Configuration</button></li>
-    </ul>
+<script>
+/*
+  Single-file working implementation:
+  - dailyScenarios is object keyed by date: { '2025-09-25': [scenarioObj, ...], ... }
+  - configurations stored in array
+  - rules for each config stored in localStorage under key 'rules_<configId>'
+  - manage rules modal reads/writes those keys
+  - image preview uses base64 DataURL stored into scenario.images array
+  - pan/zoom implemented with lightweight handler below (works on touch + mouse)
+*/
 
-    <div class="tab-content">
-      <!-- DAILY SCENARIO -->
-      <div class="tab-pane fade show active" id="daily-scenario">
-        <div class="row align-items-end mb-3">
-          <div class="col-md-4">
-            <label class="form-label fw-bold">Select Date</label>
-            <input type="date" id="date-picker" class="form-control">
-          </div>
-          <div class="col-md-8 text-end">
-            <button class="btn btn-primary" id="add-new-scenario"><i class="fas fa-plus-circle me-1"></i> Add Scenario</button>
-            <button class="btn btn-secondary" id="refresh-daily-scenarios"><i class="fas fa-sync-alt me-1"></i> Refresh</button>
-          </div>
-        </div>
-        <hr>
-        <div id="scenario-cards-container">
-          <div class="text-center text-muted p-5">
-            <i class="fas fa-exclamation-circle fa-2x mb-3"></i>
-            <p>No scenarios found for this date. Click 'Add Scenario' to get started!</p>
-          </div>
-        </div>
-      </div>
+$(function(){
+  // Data
+  let dailyScenarios = JSON.parse(localStorage.getItem('dailyScenarios') || '{}'); // { date: [ {id, configId, status, explanation, rules[], images[] } ] }
+  let configurations = JSON.parse(localStorage.getItem('configurations') || '[]'); // [ {id, title, description, entryPoint, exitPoint} ]
+  let currentImages = [];
+  let currentManageRulesForConfig = null; // configId context for rules modal
 
-      <!-- REPORT -->
-      <div class="tab-pane fade" id="report">
-        <h4 class="mb-3">Scenario Report</h4>
+  // Helpers
+  function persist(){ localStorage.setItem('dailyScenarios', JSON.stringify(dailyScenarios)); localStorage.setItem('configurations', JSON.stringify(configurations)); }
 
-        <div class="card p-3 mb-3">
-          <div class="row gy-2">
-            <div class="col-md-4">
-              <label class="form-label">From Date</label>
-              <input type="date" id="report-from" class="form-control">
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">To Date</label>
-              <input type="date" id="report-to" class="form-control">
-            </div>
-            <div class="col-md-4 d-flex align-items-end">
-              <button class="btn btn-primary w-100" id="filter-report">Filter</button>
-            </div>
-          </div>
-        </div>
+  function todayISO(){ return new Date().toISOString().slice(0,10); }
 
-        <div id="report-summary" class="mb-4"></div>
+  // UI Renders
 
-        <div class="card">
-          <div class="card-header fw-bold">Detailed Report</div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-striped table-hover" id="report-table">
-                <thead class="table-dark">
-                  <tr>
-                    <th>Scenario Title</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Rules Passed</th>
-                    <th>Explanation</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
+  function populateScenarioDropdown(){
+    const sel = $('#scenario-select').empty();
+    sel.append('<option value="" disabled selected>Select a Scenario</option>');
+    configurations.forEach(c => sel.append(`<option value="${c.id}">${escapeHtml(c.title)}</option>`));
+  }
+
+  function renderDailyScenarios(){
+    const date = $('#date-picker').val();
+    const container = $('#scenario-cards-container').empty();
+    const list = (dailyScenarios[date] || []);
+    if (!list.length){
+      container.html('<div class="text-center small-muted p-4"><i class="fas fa-info-circle fa-2x mb-2"></i><p>No scenarios found for this date. Click "Add Scenario".</p></div>');
+      return;
+    }
+    list.forEach(s => {
+      const cfg = configurations.find(c=>c.id==s.configId) || { title: 'Unknown' };
+      const img = (s.images && s.images.length) ? s.images[0] : 'https://via.placeholder.com/150';
+      const statusClass = s.status === 'pass' ? 'pass' : (s.status === 'fail' ? 'fail' : 'not-produced');
+      const card = $(`
+        <div class="scenario-card mb-3" data-id="${s.id}">
+          <img src="${img}" alt="img">
+          <div style="flex:1">
+            <h5 class="mb-1">${escapeHtml(cfg.title)}</h5>
+            <p class="mb-1 small text-muted">Status: <span class="scenario-status ${statusClass}">${(s.status||'').toUpperCase()}</span></p>
+            <p class="mb-2 small">${escapeHtml((s.explanation||'').slice(0,100))}${(s.explanation && s.explanation.length>100? '...' : '')}</p>
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-info btn-view" data-id="${s.id}"><i class="fas fa-eye"></i> View</button>
+              <button class="btn btn-warning btn-edit" data-id="${s.id}"><i class="fas fa-edit"></i> Edit</button>
+              <button class="btn btn-danger btn-delete" data-id="${s.id}"><i class="fas fa-trash"></i> Delete</button>
             </div>
           </div>
         </div>
-      </div>
+      `);
+      container.append(card);
+    });
+  }
 
-      <!-- CONFIGURATION -->
-      <div class="tab-pane fade" id="configuration">
-        <div class="text-end mb-3">
-          <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addConfigModal"><i class="fas fa-plus-circle me-1"></i> Add New Configuration</button>
-        </div>
-        <div id="config-list"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ADD SCENARIO MODAL -->
-  <div class="modal fade" id="addScenarioModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="addScenarioModalLabel">Add Daily Scenario</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-        <div class="modal-body">
-          <form id="scenario-form">
-            <input type="hidden" id="daily-scenario-id">
-            <div class="mb-3">
-              <label class="form-label">Scenario</label>
-              <select class="form-select" id="scenario-select" required></select>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Status</label>
-              <select class="form-select" id="status-select" required>
-                <option value="" disabled selected>Select Status</option>
-                <option value="pass">Pass</option>
-                <option value="fail">Fail</option>
-                <option value="not-produced">Not Produced</option>
-              </select>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Explanation</label>
-              <textarea class="form-control" id="explanation-input" rows="3"></textarea>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">Image Upload</label>
-              <input class="form-control" type="file" id="image-upload" multiple accept="image/*">
-              <div id="image-preview-container" class="image-preview-container mt-2 d-flex flex-wrap gap-2"></div>
-            </div>
-
-            <hr>
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h6 class="mb-0">Manage Rules</h6>
-              <button type="button" class="btn btn-outline-primary btn-sm" id="open-manage-rules-for-scenario"><i class="fas fa-tasks me-1"></i> Manage Rules</button>
-            </div>
-            <div id="daily-rules-container" class="mb-3">
-              <div class="alert alert-info text-center">Select a scenario to load rules.</div>
-            </div>
-          </form>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" id="save-daily-scenario">Save Scenario</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- VIEW SCENARIO MODAL -->
-  <div class="modal fade" id="viewScenarioModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Scenario Details</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-        <div class="modal-body" id="view-scenario-body">
-          <!-- Filled by JS -->
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-primary" id="view-manage-rules-btn"><i class="fas fa-tasks me-1"></i> Manage Rules</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ADD CONFIG MODAL -->
-  <div class="modal fade" id="addConfigModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="addConfigModalLabel">Add Configuration</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-        <div class="modal-body">
-          <form id="config-form">
-            <input type="hidden" id="config-id">
-            <div class="mb-3">
-              <label class="form-label">Scenario Title</label>
-              <input type="text" class="form-control" id="config-title" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Description</label>
-              <textarea class="form-control" id="config-description" rows="3"></textarea>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Entry Point</label>
-                <input type="text" class="form-control" id="entry-point">
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Exit Point</label>
-                <input type="text" class="form-control" id="exit-point">
-              </div>
-            </div>
-
-            <div class="text-end">
-              <button type="button" class="btn btn-outline-primary" id="manage-config-rules"><i class="fas fa-tasks me-1"></i> Manage Rules</button>
-            </div>
-          </form>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" id="save-config">Save Configuration</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- VIEW CONFIG MODAL -->
-  <div class="modal fade" id="viewConfigModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Configuration Details</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-        <div class="modal-body" id="view-config-body"></div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MANAGE RULES MODAL -->
-  <div class="modal fade" id="manageRulesModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Manage Rules for <span id="rules-scenario-title" class="text-primary"></span></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-
-        <div class="modal-body">
-          <form id="add-rule-form" class="row g-2 mb-3 align-items-end">
-            <div class="col-md-6">
-              <label class="form-label">Rule Name</label>
-              <input type="text" class="form-control" id="rule-name" required>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Condition</label>
-              <input type="text" class="form-control" id="rule-condition">
-            </div>
-            <div class="col-md-2">
-              <button type="button" class="btn btn-success w-100" id="add-rule-btn"><i class="fas fa-plus-circle"></i></button>
-            </div>
-          </form>
-
-          <hr>
-          <ul class="list-group" id="rules-list"></ul>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Done</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Dependencies (jQuery + Bootstrap + Panzoom) -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
-
-  <!-- Panzoom (for image pinch/zoom/drag) -->
-  <script src="https://unpkg.com/@panzoom/panzoom/dist/panzoom.min.js"></script>
-
-  <script>
-    $(function(){
-      // -------------------------
-      // Data structures
-      // dailyScenarios: object keyed by date -> array of scenario objects
-      // configurations: array of configuration objects
-      // temp rules saved per config under key tempRules_<configId>
-      // -------------------------
-      let dailyScenarios = JSON.parse(localStorage.getItem('dailyScenarios')) || {}; // { '2025-09-25': [ ... ] }
-      let configurations = JSON.parse(localStorage.getItem('configurations')) || []; // array
-      let currentImages = [];
-      let currentManageRulesConfigId = null;
-
-      function saveData(){
-        localStorage.setItem('dailyScenarios', JSON.stringify(dailyScenarios));
-        localStorage.setItem('configurations', JSON.stringify(configurations));
-      }
-
-      // Helper: flatten all scenarios with date
-      function getAllScenariosArray(){
-        const arr = [];
-        Object.keys(dailyScenarios).forEach(date => {
-          (dailyScenarios[date] || []).forEach(s => {
-            arr.push(Object.assign({}, s, { date: date }));
-          });
-        });
-        return arr;
-      }
-
-      function saveScenarioForDate(date, scenario){
-        if (!dailyScenarios[date]) dailyScenarios[date] = [];
-        // remove if existing with same id
-        dailyScenarios[date] = dailyScenarios[date].filter(s => s.id !== scenario.id);
-        dailyScenarios[date].push(scenario);
-        saveData();
-      }
-
-      // -------------------------
-      // UI Renders
-      // -------------------------
-      function renderDailyScenarios(){
-        const date = $('#date-picker').val();
-        const container = $('#scenario-cards-container');
-        container.empty();
-
-        const list = dailyScenarios[date] || [];
-
-        if (!list || list.length === 0){
-          container.html('<div class="text-center text-muted p-5"><i class="fas fa-exclamation-circle fa-2x mb-3"></i><p>No scenarios found for this date. Click \'Add Scenario\' to get started!</p></div>');
-          return;
-        }
-
-        list.forEach(scenario => {
-          const config = configurations.find(c => c.id === scenario.configId) || { title: 'Unknown' };
-          const imgSrc = (scenario.images && scenario.images.length > 0) ? scenario.images[0] : 'https://via.placeholder.com/150';
-          const statusClass = scenario.status === 'pass' ? 'pass' : (scenario.status === 'fail' ? 'fail' : 'not-produced');
-          const card = $(`
-            <div class="scenario-card mb-3" data-id="${scenario.id}">
-              <img src="${imgSrc}" alt="Scenario Image">
-              <div style="flex:1">
-                <h5 class="mb-1">${config.title}</h5>
-                <p class="mb-1 text-muted">Status: <span class="scenario-status ${statusClass}">${(scenario.status || '').toUpperCase()}</span></p>
-                <p class="mb-2 small">${(scenario.explanation || '').substring(0, 80)}${(scenario.explanation && scenario.explanation.length>80 ? '...' : '')}</p>
-                <div class="btn-group btn-group-sm" role="group">
-                  <button class="btn btn-info btn-view" data-id="${scenario.id}"><i class="fas fa-eye"></i> View</button>
-                  <button class="btn btn-warning btn-edit" data-id="${scenario.id}"><i class="fas fa-edit"></i> Edit</button>
-                  <button class="btn btn-danger btn-delete" data-id="${scenario.id}"><i class="fas fa-trash-alt"></i> Delete</button>
-                  <button class="btn btn-secondary btn-copy" data-id="${scenario.id}"><i class="fas fa-copy"></i> Copy</button>
-                </div>
-              </div>
-            </div>
-          `);
-          container.append(card);
-        });
-      }
-
-      function renderConfigurations(){
-        const list = $('#config-list');
-        list.empty();
-        if (!configurations || configurations.length === 0){
-          list.html('<div class="alert alert-info text-center">No configurations found. Add a new one!</div>');
-          return;
-        }
-        configurations.forEach(config => {
-          const configHtml = $(`
-            <div class="list-group-item d-flex justify-content-between align-items-center mb-2 card">
-              <div class="w-75">
-                <h5 class="mb-1">${config.title}</h5>
-                <p class="mb-1 text-muted small">${(config.description || '').substring(0, 120)}${(config.description && config.description.length>120 ? '...' : '')}</p>
-                <p class="mb-0 small"><span class="fw-bold">Entry:</span> ${config.entryPoint || 'N/A'} | <span class="fw-bold">Exit:</span> ${config.exitPoint || 'N/A'}</p>
-              </div>
-              <div class="btn-group btn-group-sm">
-                <button class="btn btn-info btn-view-config" data-id="${config.id}"><i class="fas fa-eye"></i> View</button>
-                <button class="btn btn-warning btn-edit-config" data-id="${config.id}"><i class="fas fa-edit"></i> Edit</button>
-                <button class="btn btn-danger btn-delete-config" data-id="${config.id}"><i class="fas fa-trash-alt"></i> Delete</button>
-                <button class="btn btn-secondary btn-copy-config" data-id="${config.id}"><i class="fas fa-copy"></i> Copy</button>
-              </div>
-            </div>
-          `);
-          list.append(configHtml);
-        });
-      }
-
-      function renderReport(filteredFrom=null, filteredTo=null){
-        const tableBody = $('#report-table tbody');
-        tableBody.empty();
-        const summary = { total: 0, pass: 0, fail: 0, 'not-produced': 0 };
-        const rows = [];
-
-        Object.keys(dailyScenarios).sort().forEach(date => {
-          // date filter
-          if (filteredFrom && date < filteredFrom) return;
-          if (filteredTo && date > filteredTo) return;
-
-          (dailyScenarios[date] || []).forEach(scenario => {
-            const config = configurations.find(c => c.id === scenario.configId) || { title: 'Unknown' };
-            summary.total++;
-            if (scenario.status) summary[scenario.status] = (summary[scenario.status] || 0) + 1;
-
-            const rulesPassed = (scenario.rules || []).filter(r => r.status === 'pass').length;
-            rows.push({
-              title: config.title,
-              date,
-              status: scenario.status || 'N/A',
-              rulesPassed,
-              rulesTotal: (scenario.rules || []).length,
-              explanation: scenario.explanation || '',
-              id: scenario.id
-            });
-          });
-        });
-
-        // table rows
-        rows.forEach(r => {
-          const statusClass = r.status === 'pass' ? 'bg-success' : (r.status === 'fail' ? 'bg-danger' : 'bg-warning');
-          const tr = $(`
-            <tr>
-              <td>${r.title}</td>
-              <td>${r.date}</td>
-              <td><span class="badge ${statusClass}">${(r.status || '').toUpperCase()}</span></td>
-              <td>${r.rulesPassed} of ${r.rulesTotal}</td>
-              <td>${(r.explanation || '').substring(0,60)}${(r.explanation && r.explanation.length>60 ? '...' : '')}</td>
-              <td><button class="btn btn-info btn-sm btn-view-report-details" data-id="${r.id}"><i class="fas fa-info-circle"></i> Details</button></td>
-            </tr>
-          `);
-          tableBody.append(tr);
-        });
-
-        const total = summary.total || 0;
-        const summaryHtml = `
-          <div class="row text-center fw-bold">
-            <div class="col-md-3">Total Scenarios: <span class="badge bg-primary">${total}</span></div>
-            <div class="col-md-3">Pass: <span class="badge bg-success">${summary.pass || 0} (${total?((summary.pass/total*100).toFixed(1)):'0.0'}%)</span></div>
-            <div class="col-md-3">Fail: <span class="badge bg-danger">${summary.fail || 0} (${total?((summary.fail/total*100).toFixed(1)):'0.0'}%)</span></div>
-            <div class="col-md-3">Not Produced: <span class="badge bg-warning">${summary['not-produced'] || 0} (${total?(( (summary['not-produced']||0)/total*100).toFixed(1)):'0.0'}%)</span></div>
+  function renderConfigurations(){
+    const list = $('#config-list').empty();
+    if (!configurations.length){
+      list.html('<div class="alert alert-info text-center">No configurations found. Add new ones.</div>');
+      return;
+    }
+    configurations.forEach(c => {
+      const el = $(`
+        <div class="list-group-item d-flex justify-content-between align-items-center mb-2 card">
+          <div class="w-75">
+            <h5 class="mb-1">${escapeHtml(c.title)}</h5>
+            <p class="mb-1 small text-muted">${escapeHtml((c.description||'').slice(0,120))}${(c.description && c.description.length>120? '...' : '')}</p>
+            <p class="mb-0 small"><strong>Entry:</strong> ${escapeHtml(c.entryPoint||'N/A')} | <strong>Exit:</strong> ${escapeHtml(c.exitPoint||'N/A')}</p>
           </div>
-        `;
-        $('#report-summary').html(summaryHtml);
-      }
-
-      function populateScenarioDropdown(){
-        const select = $('#scenario-select');
-        select.empty();
-        select.append('<option value="" disabled selected>Select a Scenario</option>');
-        configurations.forEach(c => {
-          select.append(`<option value="${c.id}">${c.title}</option>`);
-        });
-      }
-
-      // -------------------------
-      // Init on login
-      // -------------------------
-      $('#login-form').on('submit', function(e){
-        e.preventDefault();
-        const username = $('#username').val();
-        const password = $('#password').val();
-        if (username === 'local' && password === 'local1234'){
-          $('#login-page').hide();
-          $('#main-app').show();
-          const today = new Date().toISOString().slice(0,10);
-          $('#date-picker').val(today);
-          renderDailyScenarios();
-          renderConfigurations();
-          renderReport();
-          populateScenarioDropdown();
-        } else {
-          $('#login-error').text('Invalid username or password. Please try again.').show();
-        }
-      });
-
-      // -------------------------
-      // Handlers: add new scenario
-      // -------------------------
-      $('#add-new-scenario').on('click', function(){
-        $('#scenario-form')[0].reset();
-        $('#daily-scenario-id').val('');
-        $('#image-preview-container').empty();
-        currentImages = [];
-        $('#addScenarioModalLabel').text('Add Daily Scenario');
-        $('#daily-rules-container').html('<div class="alert alert-info text-center">Select a scenario to load rules.</div>');
-        populateScenarioDropdown();
-        const modalEl = document.getElementById('addScenarioModal');
-        const modal = new bootstrap.Modal(modalEl);
-        modal.show();
-      });
-
-      // image upload preview
-      $('#image-upload').on('change', function(){
-        const files = this.files;
-        if (files && files.length){
-          Array.from(files).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = function(e){
-              currentImages.push(e.target.result);
-              updateImagePreview();
-            };
-            reader.readAsDataURL(file);
-          });
-        }
-        $(this).val('');
-      });
-
-      function updateImagePreview(){
-        const previewContainer = $('#image-preview-container');
-        previewContainer.empty();
-        currentImages.forEach((image, index) => {
-          const el = $(`
-            <div class="image-preview-item position-relative">
-              <img src="${image}" alt="Preview ${index}">
-              <span class="remove-btn" data-index="${index}">&times;</span>
-            </div>
-          `);
-          previewContainer.append(el);
-        });
-      }
-
-      $(document).on('click', '.remove-btn', function(){
-        const i = $(this).data('index');
-        currentImages.splice(i,1);
-        updateImagePreview();
-      });
-
-      // -------------------------
-      // Save daily scenario
-      // -------------------------
-      $('#save-daily-scenario').on('click', function(){
-        const id = $('#daily-scenario-id').val();
-        const configId = $('#scenario-select').val();
-        const date = $('#date-picker').val();
-        const status = $('#status-select').val();
-        const explanation = $('#explanation-input').val();
-
-        if (!configId){
-          alert('Please select a scenario configuration.');
-          return;
-        }
-        if (!date){
-          alert('Please select a date.');
-          return;
-        }
-
-        // collect rules from UI (if present). If not present, load default rules from tempRules for config
-        let rules = [];
-        $('#daily-rules-container .rule-item').each(function(){
-          const ruleId = $(this).data('rule-id');
-          const ruleStatus = $(this).find('.status-select').val();
-          const ruleComment = $(this).find('.comment-input').val();
-          rules.push({ id: ruleId, status: ruleStatus, comment: ruleComment });
-        });
-
-        // if none found, attempt to load default rules from tempRules for selected config
-        if (rules.length === 0){
-          const temp = JSON.parse(localStorage.getItem('tempRules_' + configId) || '[]');
-          rules = temp.map(r => ({ id: r.id, status: 'pass', comment: '' }));
-        }
-
-        const scenarioData = {
-          id: id || Date.now().toString(),
-          configId,
-          status,
-          explanation,
-          rules,
-          images: currentImages
-        };
-
-        // If editing, find and replace in that date (if date changed we will place in chosen date)
-        // Remove scenario from all dates if editing existing with different date
-        if (id){
-          // remove from all dates first
-          Object.keys(dailyScenarios).forEach(d => {
-            dailyScenarios[d] = dailyScenarios[d].filter(s => s.id != id);
-            if (dailyScenarios[d].length === 0) delete dailyScenarios[d];
-          });
-        }
-
-        if (!dailyScenarios[date]) dailyScenarios[date] = [];
-        dailyScenarios[date].push(scenarioData);
-        saveData();
-
-        // refresh UI
-        renderDailyScenarios();
-        renderReport();
-
-        // close modal using Bootstrap Modal API
-        const addModalEl = document.getElementById('addScenarioModal');
-        bootstrap.Modal.getOrCreateInstance(addModalEl).hide();
-
-        // reset modal fields
-        $('#scenario-form')[0].reset();
-        $('#image-preview-container').empty();
-        currentImages = [];
-        $('#daily-scenario-id').val('');
-        $('#daily-rules-container').html('<div class="alert alert-info text-center">Select a scenario to load rules.</div>');
-      });
-
-      // -------------------------
-      // Edit / View / Delete / Copy
-      // -------------------------
-      $(document).on('click', '.btn-edit', function(){
-        const id = $(this).data('id');
-        // find scenario across dates
-        let scenario = null; let scenDate = null;
-        Object.keys(dailyScenarios).forEach(date => {
-          (dailyScenarios[date]||[]).forEach(s => {
-            if (s.id == id){ scenario = s; scenDate = date; }
-          });
-        });
-        if (!scenario) return alert('Scenario not found.');
-
-        $('#daily-scenario-id').val(scenario.id);
-        populateScenarioDropdown();
-        $('#scenario-select').val(scenario.configId);
-        $('#status-select').val(scenario.status);
-        $('#explanation-input').val(scenario.explanation);
-
-        // images
-        currentImages = scenario.images ? [...scenario.images] : [];
-        updateImagePreview();
-
-        // rules: load rule definitions from tempRules for the config and populate with scenario values
-        const configRules = JSON.parse(localStorage.getItem('tempRules_' + scenario.configId) || '[]');
-        const rulesContainer = $('#daily-rules-container');
-        rulesContainer.empty();
-        if (configRules.length === 0){
-          rulesContainer.html('<div class="alert alert-warning text-center">No rules configured for this scenario.</div>');
-        } else {
-          configRules.forEach(rule => {
-            const dailyRule = (scenario.rules || []).find(r => r.id == rule.id) || { status: 'pass', comment: '' };
-            const el = $(`
-              <div class="card p-3 mb-2 rule-item" data-rule-id="${rule.id}">
-                <h6>${rule.name}</h6>
-                <p class="small text-muted">Condition: ${rule.condition || ''}</p>
-                <div class="row g-2">
-                  <div class="col-md-4">
-                    <select class="form-select status-select">
-                      <option value="pass" ${dailyRule.status === 'pass' ? 'selected' : ''}>Pass</option>
-                      <option value="fail" ${dailyRule.status === 'fail' ? 'selected' : ''}>Fail</option>
-                    </select>
-                  </div>
-                  <div class="col-md-8">
-                    <textarea class="form-control comment-input" rows="1" placeholder="Comments">${dailyRule.comment || ''}</textarea>
-                  </div>
-                </div>
-              </div>
-            `);
-            rulesContainer.append(el);
-          });
-        }
-
-        $('#addScenarioModalLabel').text('Edit Daily Scenario');
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('addScenarioModal')).show();
-      });
-
-      $(document).on('click', '.btn-view, .btn-view-report-details', function(){
-        const id = $(this).data('id');
-        let scenario = null;
-        Object.keys(dailyScenarios).forEach(date => {
-          (dailyScenarios[date]||[]).forEach(s => { if (s.id == id) scenario = Object.assign({}, s, { date }); });
-        });
-        if (!scenario) return alert('Scenario details not found.');
-
-        const config = configurations.find(c => c.id === scenario.configId) || { title: 'Unknown', rules: [] };
-
-        const rulesHtml = (scenario.rules || []).map(rule => {
-          const configRule = (JSON.parse(localStorage.getItem('tempRules_' + scenario.configId) || '[]')).find(r => r.id == rule.id) || {};
-          return `
-            <li class="list-group-item">
-              <h6 class="mb-1">${configRule.name || 'Unknown Rule'}</h6>
-              <p class="mb-1"><strong>Status:</strong> <span class="badge ${rule.status === 'pass' ? 'bg-success' : 'bg-danger'}">${(rule.status||'').toUpperCase()}</span></p>
-              ${rule.comment ? `<p class="mb-0"><strong>Comment:</strong> ${rule.comment}</p>` : ''}
-            </li>
-          `;
-        }).join('');
-
-        const imagesHtml = (scenario.images || []).map((image, idx) => `
-          <div class="col-md-4 mb-3">
-            <div class="zoom-container">
-              <img src="${image}" class="img-fluid rounded zoomable-img" alt="Scenario Image ${idx}">
-            </div>
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-info btn-view-config" data-id="${c.id}"><i class="fas fa-eye"></i> View</button>
+            <button class="btn btn-warning btn-edit-config" data-id="${c.id}"><i class="fas fa-edit"></i> Edit</button>
+            <button class="btn btn-danger btn-delete-config" data-id="${c.id}"><i class="fas fa-trash-alt"></i> Delete</button>
+            <button class="btn btn-secondary btn-copy-config" data-id="${c.id}"><i class="fas fa-copy"></i> Copy</button>
           </div>
-        `).join('');
+        </div>
+      `);
+      list.append(el);
+    });
+  }
 
-        const details = `
-          <p><strong>Scenario Title:</strong> ${config.title}</p>
-          <p><strong>Date:</strong> ${scenario.date}</p>
-          <p><strong>Status:</strong> <span class="badge ${scenario.status === 'pass' ? 'bg-success' : (scenario.status === 'fail' ? 'bg-danger' : 'bg-warning')}">${(scenario.status||'').toUpperCase()}</span></p>
-          <p><strong>Explanation:</strong> ${scenario.explanation || 'N/A'}</p>
-          <hr>
-          <h6>Rules:</h6>
-          <ul class="list-group mb-3">${rulesHtml || '<div class="alert alert-info">No rules available.</div>'}</ul>
-          <h6>Images:</h6>
-          <div class="row">${imagesHtml || '<div class="col"><p>No images uploaded.</p></div>'}</div>
-        `;
-
-        $('#view-scenario-body').html(details);
-
-        // store current manage rules context to use from view
-        currentManageRulesConfigId = scenario.configId;
-        $('#rules-scenario-title').text(config.title || '');
-
-        // show modal
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('viewScenarioModal')).show();
-
-        // initialize panzoom for zoomable images
-        setTimeout(() => {
-          document.querySelectorAll('.zoomable-img').forEach(img => {
-            try {
-              // panzoom expects element, enable pinch & pan
-              const panzoom = Panzoom(img, { maxScale: 5, contain: 'outside' });
-              // make parent handle wheel to zoom
-              img.parentElement.addEventListener('wheel', panzoom.zoomWithWheel);
-              // store instance on element so we can destroy if needed
-              img._panzoomInstance = panzoom;
-            } catch(e){
-              console.warn('panzoom init failed', e);
-            }
-          });
-        }, 80);
-      });
-
-      $(document).on('click', '.btn-delete', function(){
-        const id = $(this).data('id');
-        if (!confirm('Are you sure you want to delete this scenario?')) return;
-        // remove across all dates
-        Object.keys(dailyScenarios).forEach(date => {
-          dailyScenarios[date] = (dailyScenarios[date]||[]).filter(s => s.id != id);
-          if (dailyScenarios[date].length === 0) delete dailyScenarios[date];
-        });
-        saveData();
-        renderDailyScenarios();
-        renderReport();
-      });
-
-      $(document).on('click', '.btn-copy', function(){
-        const id = $(this).data('id');
-        let scenario = null; let scenDate = null;
-        Object.keys(dailyScenarios).forEach(date => {
-          (dailyScenarios[date]||[]).forEach(s => { if (s.id == id) { scenario = s; scenDate = date; }});
-        });
-        if (!scenario) return;
-        const copy = JSON.parse(JSON.stringify(scenario));
-        copy.id = Date.now().toString();
-        if (!dailyScenarios[scenDate]) dailyScenarios[scenDate] = [];
-        dailyScenarios[scenDate].push(copy);
-        saveData();
-        renderDailyScenarios();
-        renderReport();
-      });
-
-      // -------------------------
-      // When scenario-select changes in Add/Edit modal: populate rules summary area
-      // -------------------------
-      $('#scenario-select').on('change', function(){
-        const configId = $(this).val();
-        if (!configId) return;
-        const rulesContainer = $('#daily-rules-container');
-        rulesContainer.empty();
-        const rules = JSON.parse(localStorage.getItem('tempRules_' + configId) || '[]');
-        if (!rules || rules.length === 0){
-          rulesContainer.html('<div class="alert alert-warning text-center">No rules configured for this scenario.</div>');
-          return;
-        }
-        // default UI for new scenario: status selects + comment inputs
-        rules.forEach(rule => {
-          const el = $(`
-            <div class="card p-3 mb-2 rule-item" data-rule-id="${rule.id}">
-              <h6>${rule.name}</h6>
-              <p class="small text-muted">Condition: ${rule.condition || ''}</p>
-              <div class="row g-2">
-                <div class="col-md-4">
-                  <select class="form-select status-select">
-                    <option value="pass">Pass</option>
-                    <option value="fail">Fail</option>
-                  </select>
-                </div>
-                <div class="col-md-8">
-                  <textarea class="form-control comment-input" rows="1" placeholder="Comments"></textarea>
-                </div>
-              </div>
-            </div>
-          `);
-          rulesContainer.append(el);
-        });
-      });
-
-      // -------------------------
-      // CONFIGURATIONS: Save/Add
-      // -------------------------
-      $('#save-config').on('click', function(){
-        const id = $('#config-id').val();
-        const title = $('#config-title').val();
-        if (!title) return alert('Please enter a title.');
-        const description = $('#config-description').val();
-        const entryPoint = $('#entry-point').val();
-        const exitPoint = $('#exit-point').val();
-
-        // load rules from tempRules_<configId> if present
-        const rulesKey = 'tempRules_' + (id || 'new');
-        const rules = JSON.parse(localStorage.getItem('tempRules_' + (id || 'new')) || '[]');
-
-        // if editing existing config, remove 'new' tempRules mapping to id
-        const configData = { id: id || Date.now().toString(), title, description, entryPoint, exitPoint, rules };
-
-        if (id){
-          const idx = configurations.findIndex(c => c.id == id);
-          if (idx !== -1) configurations[idx] = configData;
-        } else {
-          configurations.push(configData);
-        }
-
-        // store rules under permanent key: tempRules_<config.id>
-        localStorage.setItem('tempRules_' + configData.id, JSON.stringify(rules));
-        // clean any 'new' temporary
-        localStorage.removeItem('tempRules_new');
-
-        saveData();
-        renderConfigurations();
-        populateScenarioDropdown();
-
-        // close modal
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('addConfigModal')).hide();
-
-        // reset
-        $('#config-form')[0].reset();
-        $('#config-id').val('');
-      });
-
-      // view config
-      $(document).on('click', '.btn-view-config', function(){
-        const id = $(this).data('id');
-        const config = configurations.find(c => c.id == id);
-        if (!config) return alert('Configuration not found.');
-        const rules = JSON.parse(localStorage.getItem('tempRules_' + id) || '[]');
-        const rulesHtml = rules.map(r => `<li class="list-group-item"><h6 class="mb-1">${r.name}</h6><small class="text-muted">${r.condition || 'No condition provided.'}</small></li>`).join('');
-        $('#view-config-body').html(`
-          <p><strong>Scenario Title:</strong> ${config.title}</p>
-          <p><strong>Description:</strong> ${config.description || 'N/A'}</p>
-          <p><strong>Entry Point:</strong> ${config.entryPoint || 'N/A'}</p>
-          <p><strong>Exit Point:</strong> ${config.exitPoint || 'N/A'}</p>
-          <hr>
-          <h6>Rules:</h6>
-          <ul class="list-group">${rulesHtml || '<div class="alert alert-info">No rules configured.</div>'}</ul>
-        `);
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('viewConfigModal')).show();
-      });
-
-      // edit config
-      $(document).on('click', '.btn-edit-config', function(){
-        const id = $(this).data('id');
-        const config = configurations.find(c => c.id == id);
-        if (!config) return;
-        $('#config-id').val(config.id);
-        $('#config-title').val(config.title);
-        $('#config-description').val(config.description);
-        $('#entry-point').val(config.entryPoint);
-        $('#exit-point').val(config.exitPoint);
-        // ensure tempRules_<id> is populated for manage modal
-        if (!localStorage.getItem('tempRules_' + id)){
-          localStorage.setItem('tempRules_' + id, JSON.stringify(config.rules || []));
-        }
-        $('#addConfigModalLabel').text('Edit Configuration');
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('addConfigModal')).show();
-      });
-
-      // delete config
-      $(document).on('click', '.btn-delete-config', function(){
-        const id = $(this).data('id');
-        if (!confirm('Are you sure you want to delete this configuration? This will also remove related daily scenarios.')) return;
-        configurations = configurations.filter(c => c.id != id);
-        // remove related scenarios
-        Object.keys(dailyScenarios).forEach(date => {
-          dailyScenarios[date] = (dailyScenarios[date]||[]).filter(s => s.configId != id);
-          if (dailyScenarios[date].length === 0) delete dailyScenarios[date];
-        });
-        // remove temp rules
-        localStorage.removeItem('tempRules_' + id);
-        saveData();
-        renderConfigurations();
-        populateScenarioDropdown();
-        renderDailyScenarios();
-        renderReport();
-      });
-
-      // copy config
-      $(document).on('click', '.btn-copy-config', function(){
-        const id = $(this).data('id');
-        const config = configurations.find(c => c.id == id);
-        if (!config) return;
-        const newConfig = JSON.parse(JSON.stringify(config));
-        newConfig.id = Date.now().toString();
-        newConfig.title = config.title + ' (Copy)';
-        configurations.push(newConfig);
-        // copy temp rules storage
-        localStorage.setItem('tempRules_' + newConfig.id, JSON.stringify(JSON.parse(localStorage.getItem('tempRules_' + id) || '[]')));
-        saveData();
-        renderConfigurations();
-        populateScenarioDropdown();
-      });
-
-      // -------------------------
-      // Manage rules (Configuration) - open/manage
-      // -------------------------
-      $('#manage-config-rules').on('click', function(){
-        const title = $('#config-title').val();
-        // for a new config not saved yet, we'll temporarily use key tempRules_new
-        const configId = $('#config-id').val() || 'new';
-        currentManageRulesConfigId = configId;
-        $('#rules-scenario-title').text(title || 'Untitled Scenario');
-
-        // populate rules-list from tempRules_<configId>
-        const rulesList = $('#rules-list');
-        rulesList.empty();
-        const tempRules = JSON.parse(localStorage.getItem('tempRules_' + configId) || '[]');
-        if (tempRules.length === 0) rulesList.html('<div class="alert alert-info text-center">No rules yet. Add a rule using the form above.</div>');
-        tempRules.forEach(rule => {
-          rulesList.append(`
-            <li class="list-group-item d-flex justify-content-between align-items-center mb-2" data-id="${rule.id}">
-              <div>
-                <h6 class="mb-0">${rule.name}</h6>
-                <small class="text-muted">${rule.condition || ''}</small>
-              </div>
-              <button class="btn btn-danger btn-sm remove-rule-btn" data-id="${rule.id}"><i class="fas fa-times-circle"></i></button>
-            </li>
-          `);
-        });
-
-        // hide config modal (if open) and show manage rules
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('addConfigModal')).hide();
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('manageRulesModal')).show();
-      });
-
-      // add rule inside manage rules
-      $('#add-rule-btn').on('click', function(){
-        const ruleName = $('#rule-name').val();
-        const ruleCondition = $('#rule-condition').val();
-        if (!ruleName) return alert('Please enter rule name');
-        const rule = { id: Date.now().toString(), name: ruleName, condition: ruleCondition };
-        const key = 'tempRules_' + (currentManageRulesConfigId || 'new');
-        let tempRules = JSON.parse(localStorage.getItem(key) || '[]');
-        tempRules.push(rule);
-        localStorage.setItem(key, JSON.stringify(tempRules));
-
-        // append to list
-        $('#rules-list').append(`
-          <li class="list-group-item d-flex justify-content-between align-items-center mb-2" data-id="${rule.id}">
-            <div>
-              <h6 class="mb-0">${rule.name}</h6>
-              <small class="text-muted">${rule.condition || ''}</small>
-            </div>
-            <button class="btn btn-danger btn-sm remove-rule-btn" data-id="${rule.id}"><i class="fas fa-times-circle"></i></button>
-          </li>
-        `);
-
-        $('#rule-name').val(''); $('#rule-condition').val('');
-      });
-
-      // remove rule
-      $(document).on('click', '.remove-rule-btn', function(){
-        const id = $(this).data('id');
-        const key = 'tempRules_' + (currentManageRulesConfigId || 'new');
-        let tempRules = JSON.parse(localStorage.getItem(key) || '[]');
-        tempRules = tempRules.filter(r => r.id != id);
-        localStorage.setItem(key, JSON.stringify(tempRules));
-        $(this).closest('li').remove();
-      });
-
-      // When manageRulesModal closes, reopen addConfigModal if we came from there
-      $('#manageRulesModal').on('hidden.bs.modal', function(){
-        // put a little delay and then show addConfigModal if addConfigModal exists and was open previously
-        // We'll simply show addConfigModal if the config modal has a non-empty title - user experience improvement
-        // Also update the daily-rules-container if the addScenario modal is open
-        setTimeout(() => {
-          // Write back rules to wherever necessary - for configuration we already stored tempRules_<id>
-          // If Add Scenario modal is open and scenario-select matches currentManageRulesConfigId, refresh rules UI
-          const addModalEl = document.getElementById('addScenarioModal');
-          if (addModalEl && bootstrap.Modal.getInstance(addModalEl) && bootstrap.Modal.getInstance(addModalEl)._isShown){
-            const selected = $('#scenario-select').val();
-            if (selected && selected === currentManageRulesConfigId){
-              $('#scenario-select').trigger('change');
-            }
-          }
-          // if addConfigModal was open previously (we hid it to show manage rules), show it again
-          const addConfigEl = document.getElementById('addConfigModal');
-          if (addConfigEl && (!$('#addConfigModal').is(':hidden'))){
-            // nothing
-          } else {
-            // if config modal fields have data (user was editing/adding), reopen it
-            if ($('#config-title').val() || $('#config-description').val() || $('#config-id').val()){
-              bootstrap.Modal.getOrCreateInstance(addConfigEl).show();
-            }
-          }
-        }, 120);
-      });
-
-      // Also allow Manage Rules from Add/Edit Scenario modal (button click)
-      $('#open-manage-rules-for-scenario').on('click', function(){
-        const configId = $('#scenario-select').val();
-        if (!configId) return alert('Please select a scenario configuration first to manage its rules.');
-        currentManageRulesConfigId = configId;
-        $('#rules-scenario-title').text( ($('#scenario-select option:selected').text() || '') );
-        // populate list
-        const rulesList = $('#rules-list'); rulesList.empty();
-        const tempRules = JSON.parse(localStorage.getItem('tempRules_' + configId) || '[]');
-        if (tempRules.length === 0) rulesList.html('<div class="alert alert-info text-center">No rules yet. Add a rule using the form above.</div>');
-        tempRules.forEach(rule => {
-          rulesList.append(`
-            <li class="list-group-item d-flex justify-content-between align-items-center mb-2" data-id="${rule.id}">
-              <div>
-                <h6 class="mb-0">${rule.name}</h6>
-                <small class="text-muted">${rule.condition || ''}</small>
-              </div>
-              <button class="btn btn-danger btn-sm remove-rule-btn" data-id="${rule.id}"><i class="fas fa-times-circle"></i></button>
-            </li>
-          `);
-        });
-
-        // hide addScenarioModal and open manageRulesModal
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('addScenarioModal')).hide();
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('manageRulesModal')).show();
-      });
-
-      // Also allow Manage Rules from View Scenario modal
-      $('#view-manage-rules-btn').on('click', function(){
-        const key = 'tempRules_' + (currentManageRulesConfigId || '');
-        if (!currentManageRulesConfigId) return alert('No configuration context for rules from view.');
-        // populate rules list with rules for this config
-        const rulesList = $('#rules-list'); rulesList.empty();
-        const tempRules = JSON.parse(localStorage.getItem(key) || '[]');
-        if (tempRules.length === 0) rulesList.html('<div class="alert alert-info text-center">No rules yet. Add a rule using the form above.</div>');
-        tempRules.forEach(rule => {
-          rulesList.append(`
-            <li class="list-group-item d-flex justify-content-between align-items-center mb-2" data-id="${rule.id}">
-              <div>
-                <h6 class="mb-0">${rule.name}</h6>
-                <small class="text-muted">${rule.condition || ''}</small>
-              </div>
-              <button class="btn btn-danger btn-sm remove-rule-btn" data-id="${rule.id}"><i class="fas fa-times-circle"></i></button>
-            </li>
-          `);
-        });
-
-        // hide view modal and show manage rules
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('viewScenarioModal')).hide();
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('manageRulesModal')).show();
-      });
-
-      // -------------------------
-      // Report filtering
-      // -------------------------
-      $('#filter-report').on('click', function(){
-        const from = $('#report-from').val() || null;
-        const to = $('#report-to').val() || null;
-        renderReport(from, to);
-      });
-
-      // refresh and date change handlers
-      $('#date-picker').on('change', renderDailyScenarios);
-      $('#refresh-daily-scenarios').on('click', renderDailyScenarios);
-
-      // Initialize UI on page load
-      (function init(){
-        // ensure configurations is array
-        if (!Array.isArray(configurations)) configurations = [];
-        // set date to today if not set
-        if (!$('#date-picker').val()) $('#date-picker').val(new Date().toISOString().slice(0,10));
-        renderConfigurations();
-        populateScenarioDropdown();
-        renderDailyScenarios();
-        renderReport();
-      })();
-
-      // When addScenarioModal hidden -> reset fields and re-show something consistent
-      $('#addScenarioModal').on('hidden.bs.modal', function(){
-        $('#scenario-form')[0].reset();
-        $('#image-preview-container').empty();
-        currentImages = [];
-        $('#daily-scenario-id').val('');
-        $('#daily-rules-container').html('<div class="alert alert-info text-center">Select a scenario to load rules.</div>');
-      });
-
-      // When view scenario modal hidden -> destroy panzoom instances to avoid leaks
-      $('#viewScenarioModal').on('hidden.bs.modal', function(){
-        document.querySelectorAll('.zoomable-img').forEach(img => {
-          try {
-            if (img._panzoomInstance && typeof img._panzoomInstance.destroy === 'function'){
-              img._panzoomInstance.destroy();
-            }
-            img._panzoomInstance = null;
-          } catch(e){}
-        });
-      });
-
-      // Also keep report refreshed on config change
-      $(window).on('storage', function(){
-        dailyScenarios = JSON.parse(localStorage.getItem('dailyScenarios')) || {};
-        configurations = JSON.parse(localStorage.getItem('configurations')) || [];
-        renderDailyScenarios();
-        renderConfigurations();
-        renderReport();
-        populateScenarioDropdown();
+  function renderReport(from=null,to=null){
+    const tbody = $('#report-table tbody').empty();
+    const summary = { total:0, pass:0, fail:0, 'not-produced':0 };
+    const rows = [];
+    Object.keys(dailyScenarios).sort().forEach(date => {
+      if (from && date < from) return;
+      if (to && date > to) return;
+      (dailyScenarios[date]||[]).forEach(s => {
+        const cfg = configurations.find(c=>c.id==s.configId) || { title: 'Unknown' };
+        summary.total++;
+        if (s.status) summary[s.status] = (summary[s.status]||0) + 1;
+        const passed = (s.rules||[]).filter(r=>r.status==='pass').length;
+        rows.push({ title: cfg.title, date, status: s.status||'N/A', passed, totalRules: (s.rules||[]).length, explanation: s.explanation||'', id: s.id });
       });
     });
-  </script>
+    rows.forEach(r => {
+      const cls = r.status==='pass' ? 'bg-success' : (r.status==='fail' ? 'bg-danger' : 'bg-warning');
+      tbody.append(`<tr>
+        <td>${escapeHtml(r.title)}</td>
+        <td>${r.date}</td>
+        <td><span class="badge ${cls}">${(r.status||'').toUpperCase()}</span></td>
+        <td>${r.passed} of ${r.totalRules}</td>
+        <td>${escapeHtml(r.explanation.slice(0,60))}${(r.explanation.length>60?'...':'')}</td>
+        <td><button class="btn btn-info btn-sm btn-view-report" data-id="${r.id}"><i class="fas fa-info-circle"></i> Details</button></td>
+      </tr>`);
+    });
+    const total = summary.total || 0;
+    $('#report-summary').html(`
+      <div class="row text-center fw-bold mb-2">
+        <div class="col-md-3">Total: <span class="badge bg-primary">${total}</span></div>
+        <div class="col-md-3">Pass: <span class="badge bg-success">${summary.pass||0} (${total?((summary.pass/total*100).toFixed(1)):'0.0'}%)</span></div>
+        <div class="col-md-3">Fail: <span class="badge bg-danger">${summary.fail||0} (${total?((summary.fail/total*100).toFixed(1)):'0.0'}%)</span></div>
+        <div class="col-md-3">Not Produced: <span class="badge bg-warning">${summary['not-produced']||0} (${total?(((summary['not-produced']||0)/total*100).toFixed(1)):'0.0'}%)</span></div>
+      </div>
+    `);
+  }
+
+  // Escape helper
+  function escapeHtml(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+  // Init UI with today's date
+  $('#date-picker').val(todayISO());
+
+  // LOGIN
+  $('#login-form').on('submit', function(e){
+    e.preventDefault();
+    const u = $('#username').val().trim(), p = $('#password').val();
+    if (u==='local' && p==='local1234'){
+      $('#login-page').hide();
+      $('#main-app').show();
+      populateScenarioDropdown();
+      renderDailyScenarios();
+      renderConfigurations();
+      renderReport();
+    } else {
+      $('#login-error').text('Invalid username/password').show();
+    }
+  });
+
+  // Add New Scenario open
+  $('#add-new-scenario').on('click', function(){
+    $('#scenario-form')[0].reset();
+    $('#daily-scenario-id').val('');
+    currentImages = [];
+    $('#image-preview-container').empty();
+    $('#daily-rules-container').html('<div class="alert alert-info text-center">Select a scenario to load rules.</div>');
+    populateScenarioDropdown();
+    $('#addScenarioTitle').text('Add Daily Scenario');
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('addScenarioModal')).show();
+  });
+
+  // scenario-select change -> load rules from rules_<configId>
+  $('#scenario-select').on('change', function(){
+    const cfgId = $(this).val();
+    $('#daily-rules-container').empty();
+    if (!cfgId){
+      $('#daily-rules-container').html('<div class="alert alert-info text-center">Select a scenario to load rules.</div>');
+      return;
+    }
+    const rules = JSON.parse(localStorage.getItem('rules_' + cfgId) || '[]');
+    if (!rules.length){
+      $('#daily-rules-container').html('<div class="alert alert-warning text-center">No rules configured for this scenario. Use Manage Rules to add.</div>');
+      return;
+    }
+    // default to pass + empty comment for new scenario
+    rules.forEach(r => {
+      $('#daily-rules-container').append(`
+        <div class="card p-2 mb-2 rule-item" data-rule-id="${r.id}">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <h6 class="mb-1">${escapeHtml(r.name)}</h6>
+              <small class="text-muted">${escapeHtml(r.condition || '')}</small>
+            </div>
+          </div>
+          <div class="row g-2 mt-2">
+            <div class="col-md-3">
+              <select class="form-select status-select">
+                <option value="pass">Pass</option>
+                <option value="fail">Fail</option>
+              </select>
+            </div>
+            <div class="col-md-9">
+              <textarea class="form-control comment-input" rows="1" placeholder="Comment"></textarea>
+            </div>
+          </div>
+        </div>
+      `);
+    });
+  });
+
+  // Image upload preview
+  $('#image-upload').on('change', function(){
+    const files = this.files;
+    if (!files) return;
+    Array.from(files).forEach(file=>{
+      const reader = new FileReader();
+      reader.onload = function(e){
+        currentImages.push(e.target.result);
+        renderImagePreviews();
+      };
+      reader.readAsDataURL(file);
+    });
+    $(this).val('');
+  });
+
+  function renderImagePreviews(){
+    const cont = $('#image-preview-container').empty();
+    currentImages.forEach((img,i)=>{
+      const el = $(`
+        <div class="position-relative image-preview-item">
+          <img src="${img}" alt="preview" />
+          <span class="remove-btn" data-index="${i}">&times;</span>
+        </div>
+      `);
+      cont.append(el);
+    });
+  }
+
+  $(document).on('click', '.remove-btn', function(){
+    const idx = $(this).data('index');
+    currentImages.splice(idx,1);
+    renderImagePreviews();
+  });
+
+  // Save Scenario
+  $('#save-daily-scenario').on('click', function(){
+    const id = $('#daily-scenario-id').val() || Date.now().toString();
+    const cfgId = $('#scenario-select').val();
+    const date = $('#date-picker').val();
+    const status = $('#status-select').val();
+    const explanation = $('#explanation-input').val();
+
+    if (!cfgId){ alert('Select a scenario configuration'); return; }
+    if (!date){ alert('Select a date'); return; }
+    if (!status){ alert('Select a status'); return; }
+
+    // collect rules as array from daily rules container
+    const rules = [];
+    $('#daily-rules-container .rule-item').each(function(){
+      const ruleId = $(this).data('rule-id');
+      const status = $(this).find('.status-select').val();
+      const comment = $(this).find('.comment-input').val();
+      rules.push({ id: ruleId, status, comment });
+    });
+
+    // if no rules (maybe none configured), keep empty []
+    const scenario = { id, configId: cfgId, status, explanation, rules, images: currentImages.slice() };
+
+    // ensure date bucket
+    if (!dailyScenarios[date]) dailyScenarios[date] = [];
+    // remove existing with same id across this date and others (prevent duplicates)
+    Object.keys(dailyScenarios).forEach(d => {
+      dailyScenarios[d] = (dailyScenarios[d] || []).filter(s => s.id !== id);
+      if (!dailyScenarios[d].length) delete dailyScenarios[d];
+    });
+    // push to chosen date
+    dailyScenarios[date].push(scenario);
+    persist();
+
+    // close modal reliably
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('addScenarioModal')).hide();
+
+    // reset
+    $('#scenario-form')[0].reset();
+    $('#image-preview-container').empty();
+    currentImages = [];
+    $('#daily-scenario-id').val('');
+
+    // refresh
+    renderDailyScenarios();
+    renderReport();
+  });
+
+  // Edit / View / Delete handlers
+  $(document).on('click', '.btn-edit', function(){
+    const id = $(this).data('id');
+    // find scenario in all dates
+    let found = null, foundDate = null;
+    Object.keys(dailyScenarios).forEach(d=>{
+      dailyScenarios[d].forEach(s=>{
+        if (s.id == id){ found = s; foundDate = d; }
+      });
+    });
+    if (!found) return alert('Scenario not found');
+    $('#daily-scenario-id').val(found.id);
+    $('#status-select').val(found.status);
+    $('#explanation-input').val(found.explanation);
+    currentImages = (found.images || []).slice();
+    renderImagePreviews();
+
+    populateScenarioDropdown();
+    $('#scenario-select').val(found.configId).trigger('change');
+
+    // populate rules area by matching saved values to rule definitions
+    const defs = JSON.parse(localStorage.getItem('rules_' + found.configId) || '[]');
+    const container = $('#daily-rules-container').empty();
+    if (!defs.length){
+      container.html('<div class="alert alert-warning text-center">No rules configured for this scenario config.</div>');
+    } else {
+      defs.forEach(def => {
+        const saved = (found.rules || []).find(r=>r.id==def.id) || { status:'pass', comment:'' };
+        container.append(`
+          <div class="card p-2 mb-2 rule-item" data-rule-id="${def.id}">
+            <h6 class="mb-1">${escapeHtml(def.name)}</h6>
+            <p class="small text-muted">Condition: ${escapeHtml(def.condition||'')}</p>
+            <div class="row g-2">
+              <div class="col-md-3"><select class="form-select status-select"><option value="pass" ${saved.status==='pass'?'selected':''}>Pass</option><option value="fail" ${saved.status==='fail'?'selected':''}>Fail</option></select></div>
+              <div class="col-md-9"><textarea class="form-control comment-input" rows="1">${escapeHtml(saved.comment||'')}</textarea></div>
+            </div>
+          </div>
+        `);
+      });
+    }
+
+    $('#addScenarioTitle').text('Edit Daily Scenario');
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('addScenarioModal')).show();
+  });
+
+  $(document).on('click', '.btn-view', function(){
+    const id = $(this).data('id');
+    let found = null, foundDate = null;
+    Object.keys(dailyScenarios).forEach(d=>{
+      dailyScenarios[d].forEach(s=>{ if (s.id == id){ found = s; foundDate = d; }});
+    });
+    if (!found) return alert('Scenario not found');
+
+    const cfg = configurations.find(c => c.id == found.configId) || { title: 'Unknown' };
+    let rulesHtml = '<div class="alert alert-info">No rules configured.</div>';
+    const defs = JSON.parse(localStorage.getItem('rules_' + found.configId) || '[]');
+    if (found.rules && found.rules.length && defs.length){
+      rulesHtml = '<ul class="list-group">';
+      found.rules.forEach(r=>{
+        const def = defs.find(d=>d.id==r.id) || {};
+        rulesHtml += `<li class="list-group-item"><h6 class="mb-1">${escapeHtml(def.name || 'Unknown')}</h6><p class="mb-1"><strong>Status:</strong> <span class="badge ${r.status==='pass'?'bg-success':'bg-danger'}">${(r.status||'').toUpperCase()}</span></p>${r.comment?`<p class="mb-0"><strong>Comment:</strong> ${escapeHtml(r.comment)}</p>`:''}</li>`;
+      });
+      rulesHtml += '</ul>';
+    }
+
+    const imagesHtml = (found.images || []).length ? (found.images.map((img,i)=>`<div class="col-md-4 mb-3"><div class="zoom-wrap"><img src="${img}" class="zoom-img" data-index="${i}" /></div></div>`).join('')) : '<div class="col"><p>No images uploaded.</p></div>';
+
+    $('#view-scenario-body').html(`
+      <p><strong>Scenario Title:</strong> ${escapeHtml(cfg.title)}</p>
+      <p><strong>Date:</strong> ${foundDate}</p>
+      <p><strong>Status:</strong> <span class="badge ${found.status==='pass'?'bg-success':(found.status==='fail'?'bg-danger':'bg-warning')}">${(found.status||'').toUpperCase()}</span></p>
+      <p><strong>Explanation:</strong> ${escapeHtml(found.explanation||'N/A')}</p>
+      <hr />
+      <h6>Rules:</h6>
+      ${rulesHtml}
+      <hr />
+      <h6>Images:</h6>
+      <div class="row">${imagesHtml}</div>
+    `);
+
+    // store context for manage rules from view
+    currentManageRulesForConfig = found.configId;
+    $('#rules-scenario-title').text( configurations.find(c=>c.id==found.configId)?.title || '' );
+
+    // show modal
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('viewScenarioModal')).show();
+
+    // initialize zoom handlers for each image in view modal
+    setTimeout(()=>{ initPanZoomFor('.zoom-img'); }, 100);
+  });
+
+  $(document).on('click', '.btn-delete', function(){
+    const id = $(this).data('id');
+    if (!confirm('Delete this scenario?')) return;
+    Object.keys(dailyScenarios).forEach(d=>{
+      dailyScenarios[d] = (dailyScenarios[d]||[]).filter(s=>s.id!=id);
+      if (!dailyScenarios[d].length) delete dailyScenarios[d];
+    });
+    persist();
+    renderDailyScenarios();
+    renderReport();
+  });
+
+  // REPORT: details from report list
+  $(document).on('click', '.btn-view-report', function(){
+    const id = $(this).data('id');
+    // reuse btn-view handler by simulating click on card's view button if present
+    // find the scenario and call view flow
+    $(`.btn-view[data-id="${id}"]`).trigger('click');
+  });
+
+  // CONFIG: add new
+  $('#open-add-config').on('click', function(){
+    $('#config-form')[0].reset();
+    $('#config-id').val('');
+    $('#configModalTitle').text('Add Configuration');
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('addConfigModal')).show();
+  });
+
+  // save config
+  $('#save-config').on('click', function(){
+    const id = $('#config-id').val() || Date.now().toString();
+    const title = $('#config-title').val().trim();
+    if (!title) return alert('Enter title');
+    const description = $('#config-description').val();
+    const entryPoint = $('#entry-point').val();
+    const exitPoint = $('#exit-point').val();
+
+    const existingIndex = configurations.findIndex(c=>c.id==id);
+    const cfg = { id, title, description, entryPoint, exitPoint };
+    if (existingIndex >= 0) configurations[existingIndex] = cfg; else configurations.push(cfg);
+
+    // ensure rules storage exists
+    const key = 'rules_' + id;
+    if (!localStorage.getItem(key)) localStorage.setItem(key, JSON.stringify([]));
+
+    persist();
+    renderConfigurations();
+    populateScenarioDropdown();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('addConfigModal')).hide();
+  });
+
+  // view config
+  $(document).on('click', '.btn-view-config', function(){
+    const id = $(this).data('id');
+    const cfg = configurations.find(c=>c.id==id);
+    if (!cfg) return alert('Config not found');
+    const rules = JSON.parse(localStorage.getItem('rules_' + id) || '[]');
+    const rulesHtml = rules.length ? rules.map(r=>`<li class="list-group-item"><h6>${escapeHtml(r.name)}</h6><small class="text-muted">${escapeHtml(r.condition||'')}</small></li>`).join('') : '<div class="alert alert-info">No rules configured.</div>';
+    $('#view-config-body').html(`<p><strong>Title:</strong> ${escapeHtml(cfg.title)}</p><p><strong>Description:</strong> ${escapeHtml(cfg.description||'')}</p><p><strong>Entry:</strong> ${escapeHtml(cfg.entryPoint||'N/A')} | <strong>Exit:</strong> ${escapeHtml(cfg.exitPoint||'N/A')}</p><hr><h6>Rules:</h6><ul class="list-group">${rulesHtml}</ul>`);
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('viewConfigModal')).show();
+  });
+
+  // edit config
+  $(document).on('click', '.btn-edit-config', function(){
+    const id = $(this).data('id');
+    const cfg = configurations.find(c=>c.id==id);
+    if (!cfg) return;
+    $('#config-id').val(cfg.id);
+    $('#config-title').val(cfg.title);
+    $('#config-description').val(cfg.description);
+    $('#entry-point').val(cfg.entryPoint);
+    $('#exit-point').val(cfg.exitPoint);
+    $('#configModalTitle').text('Edit Configuration');
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('addConfigModal')).show();
+  });
+
+  // delete config
+  $(document).on('click', '.btn-delete-config', function(){
+    const id = $(this).data('id');
+    if (!confirm('Delete configuration and all related scenarios?')) return;
+    configurations = configurations.filter(c=>c.id!=id);
+    // remove related scenarios
+    Object.keys(dailyScenarios).forEach(d=>{
+      dailyScenarios[d] = (dailyScenarios[d]||[]).filter(s=>s.configId!=id);
+      if (!dailyScenarios[d].length) delete dailyScenarios[d];
+    });
+    localStorage.removeItem('rules_' + id);
+    persist();
+    renderConfigurations();
+    renderDailyScenarios();
+    renderReport();
+    populateScenarioDropdown();
+  });
+
+  // copy config
+  $(document).on('click', '.btn-copy-config', function(){
+    const id = $(this).data('id');
+    const cfg = configurations.find(c=>c.id==id);
+    if (!cfg) return;
+    const newCfg = JSON.parse(JSON.stringify(cfg));
+    newCfg.id = Date.now().toString();
+    newCfg.title = cfg.title + ' (Copy)';
+    configurations.push(newCfg);
+    // copy rules storage
+    const rules = JSON.parse(localStorage.getItem('rules_' + id) || '[]');
+    localStorage.setItem('rules_' + newCfg.id, JSON.stringify(rules));
+    persist();
+    renderConfigurations();
+    populateScenarioDropdown();
+  });
+
+  // Manage rules from config modal
+  $('#manage-config-rules').on('click', function(){
+    // prepare context: if editing config, config-id; else 'new' placeholder
+    const cfgId = $('#config-id').val() || ('temp_new');
+    currentManageRulesForConfig = cfgId;
+    $('#rules-scenario-title').text($('#config-title').val() || 'Untitled');
+    // load rules
+    const rules = JSON.parse(localStorage.getItem('rules_' + cfgId) || '[]');
+    renderRulesList(rules);
+    // hide config modal and show manage rules
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('addConfigModal')).hide();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('manageRulesModal')).show();
+  });
+
+  // Manage rules from scenario modal (should fetch rules from selected config)
+  $('#manage-rules-from-scenario').on('click', function(){
+    const cfgId = $('#scenario-select').val();
+    if (!cfgId) return alert('Select a scenario configuration first');
+    currentManageRulesForConfig = cfgId;
+    $('#rules-scenario-title').text($('#scenario-select option:selected').text() || '');
+    const rules = JSON.parse(localStorage.getItem('rules_' + cfgId) || '[]');
+    renderRulesList(rules);
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('addScenarioModal')).hide();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('manageRulesModal')).show();
+  });
+
+  // Manage rules from view modal
+  $('#view-manage-rules').on('click', function(){
+    if (!currentManageRulesForConfig) return alert('No configuration context for rules in view.');
+    $('#rules-scenario-title').text( configurations.find(c=>c.id==currentManageRulesForConfig)?.title || '');
+    const rules = JSON.parse(localStorage.getItem('rules_' + currentManageRulesForConfig) || '[]');
+    renderRulesList(rules);
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('viewScenarioModal')).hide();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('manageRulesModal')).show();
+  });
+
+  // Render rules list helper for manageRulesModal
+  function renderRulesList(rules){
+    const list = $('#rules-list').empty();
+    if (!rules.length) list.html('<div class="alert alert-info">No rules yet. Add one below.</div>');
+    rules.forEach(r=>{
+      list.append(`<li class="list-group-item d-flex justify-content-between align-items-center" data-id="${r.id}"><div><h6 class="mb-0">${escapeHtml(r.name)}</h6><small class="text-muted">${escapeHtml(r.condition||'')}</small></div><button class="btn btn-danger btn-sm remove-rule" data-id="${r.id}"><i class="fas fa-times"></i></button></li>`);
+    });
+  }
+
+  // Add rule in manageRulesModal
+  $('#add-rule-btn').on('click', function(){
+    const name = $('#rule-name').val().trim();
+    if (!name) return alert('Enter rule name');
+    const condition = $('#rule-condition').val();
+    const id = Date.now().toString();
+    const key = 'rules_' + currentManageRulesForConfig;
+    const rules = JSON.parse(localStorage.getItem(key) || '[]');
+    rules.push({ id, name, condition });
+    localStorage.setItem(key, JSON.stringify(rules));
+    $('#rule-name').val(''); $('#rule-condition').val('');
+    renderRulesList(rules);
+  });
+
+  // remove rule
+  $(document).on('click', '.remove-rule', function(){
+    const id = $(this).data('id');
+    const key = 'rules_' + currentManageRulesForConfig;
+    let rules = JSON.parse(localStorage.getItem(key) || '[]');
+    rules = rules.filter(r=>r.id!=id);
+    localStorage.setItem(key, JSON.stringify(rules));
+    renderRulesList(rules);
+  });
+
+  // When manageRulesModal closed, show appropriate modal again (config or scenario or view) depending on context
+  $('#manageRulesModal').on('hidden.bs.modal', function(){
+    // If we came from config modal (config form has data) reopen it
+    const cfgId = $('#config-id').val();
+    if ($('#config-title').val() || cfgId) {
+      // show addConfigModal if there is something to edit (user expectation)
+      bootstrap.Modal.getOrCreateInstance(document.getElementById('addConfigModal')).show();
+    } else if ($('#addScenarioModal').length){
+      // if scenario modal's scenario-select equals currentManageRulesForConfig, reopen scenario modal
+      // We'll always reopen scenario modal for continuity
+      bootstrap.Modal.getOrCreateInstance(document.getElementById('addScenarioModal')).show();
+    }
+    // ensure dropdowns / rules UI reflect newly saved rules
+    populateScenarioDropdown();
+    // if scenario modal is open and the selected config matches currentManageRulesForConfig, refresh its rules area
+    const sel = $('#scenario-select').val();
+    if (sel && sel === currentManageRulesForConfig){
+      $('#scenario-select').trigger('change');
+    }
+    // if view scenario modal was open earlier, that was closed when manageRules opened; we won't reopen automatically to avoid complex state.
+  });
+
+  // Report filter
+  $('#filter-report').on('click', function(){
+    const from = $('#report-from').val() || null;
+    const to = $('#report-to').val() || null;
+    renderReport(from,to);
+  });
+
+  // Refresh / date change
+  $('#refresh-daily').on('click', function(){ renderDailyScenarios(); });
+  $('#date-picker').on('change', function(){ renderDailyScenarios(); });
+
+  // Init small pan/zoom for images (lightweight) - works on touch and mouse
+  function initPanZoomFor(selector){
+    document.querySelectorAll(selector).forEach(img=>{
+      setupPanZoom(img);
+    });
+  }
+
+  function setupPanZoom(img){
+    if (!img) return;
+    // avoid multiple initializations
+    if (img._pzInit) return;
+    img._pzInit = true;
+
+    let scale = 1, lastScale = 1;
+    let start = null, origin = {x:0,y:0}, pos = {x:0,y:0}, lastPos = {x:0,y:0};
+    img.style.transformOrigin = '0 0';
+    img.style.touchAction = 'none';
+
+    // pointer events for pan
+    let pointers = {};
+    let pointersLen = () => Object.keys(pointers).length;
+
+    function setTransform(){
+      img.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(${scale})`;
+    }
+
+    img.addEventListener('pointerdown', e=>{
+      img.setPointerCapture(e.pointerId);
+      pointers[e.pointerId] = { x:e.clientX, y:e.clientY };
+      start = true;
+    });
+
+    img.addEventListener('pointermove', e=>{
+      if (!pointers[e.pointerId]) return;
+      pointers[e.pointerId] = { x:e.clientX, y:e.clientY };
+      const pts = Object.values(pointers);
+      if (pts.length === 1){
+        // pan
+        const dx = pts[0].x - (startX||pts[0].x);
+      }
+      if (pts.length === 1){
+        // single pointer pan
+        const p = pts[0];
+        // compute delta from lastPos
+        if (!img._lastPointer) img._lastPointer = { x:p.x, y:p.y };
+        const dx = p.x - img._lastPointer.x;
+        const dy = p.y - img._lastPointer.y;
+        pos.x += dx; pos.y += dy;
+        img._lastPointer = { x:p.x, y:p.y };
+        setTransform();
+      } else if (pts.length === 2){
+        // pinch to zoom
+        const [p1,p2] = pts;
+        const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+        if (!img._baseDist) { img._baseDist = dist; img._baseScale = scale; }
+        else {
+          const ratio = dist / img._baseDist;
+          scale = Math.min(5, Math.max(1, img._baseScale * ratio));
+          setTransform();
+        }
+      }
+    });
+
+    img.addEventListener('pointerup', e=>{
+      delete pointers[e.pointerId];
+      img._lastPointer = null;
+      img._baseDist = null;
+      img._baseScale = scale;
+    });
+    img.addEventListener('pointercancel', e=>{
+      delete pointers[e.pointerId];
+      img._lastPointer = null;
+      img._baseDist = null;
+      img._baseScale = scale;
+    });
+
+    // wheel zoom (desktop)
+    img.addEventListener('wheel', e=>{
+      e.preventDefault();
+      const delta = -e.deltaY;
+      const factor = delta > 0 ? 1.08 : 0.92;
+      scale = Math.max(1, Math.min(5, scale * factor));
+      setTransform();
+    });
+  }
+
+  // On load render
+  (function init(){
+    populateScenarioDropdown();
+    renderDailyScenarios();
+    renderConfigurations();
+    renderReport();
+  })();
+
+  // Utility: when storage changed in another tab
+  window.addEventListener('storage', function(){ dailyScenarios = JSON.parse(localStorage.getItem('dailyScenarios')||'{}'); configurations = JSON.parse(localStorage.getItem('configurations')||'[]'); populateScenarioDropdown(); renderDailyScenarios(); renderConfigurations(); renderReport(); });
+
+  // small convenience: clicking on Manage Rules from config list (button .btn-edit-config opens config modal; manage rules button only inside add/edit config or scenario or view)
+  // but also provide direct manage rules for configuration list via click on title (not necessary)
+});
+</script>
 </body>
 </html>
