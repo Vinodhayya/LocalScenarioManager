@@ -14,27 +14,52 @@
 
 <style>
 :root{
-  --primary:#ff9800; /* orange */
-  --muted:#6b6b6b;
-  --bg:#fbf7f2;
-  --card:#ffffff;
-  --success:#28a745;
-  --danger:#dc3545;
-  --warning:#ffc107;
-  --not-produced-bg:#fff3e0;
+  --primary: #4f46e5;   /* Indigo for primary actions */
+  --primary-light: #6366f1;
+  --accent:  #f43f5e;   /* Vibrant pink accent */
+  --bg:      #f3f4f6;   /* Soft gray background */
+  --card:    #ffffff;
+  --success: #22c55e;
+  --danger:  #ef4444;
+  --warning: #f59e0b;
+  --muted:   #6b7280;
 }
 body{
-  font-family:'Poppins',sans-serif;
-  background:linear-gradient(180deg,#fff 0%,var(--bg) 100%);
-  color:#222;
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  color: #111827;
 }
 .container{max-width:1200px;margin-top:28px}
 h1{color:var(--primary);font-weight:700}
-.card{border:none;border-radius:12px;box-shadow:0 8px 26px rgba(0,0,0,0.06)}
-.nav-tabs .nav-link{font-weight:600;color:var(--muted);border:none;padding:12px 18px}
-.nav-tabs .nav-link.active{color:var(--primary);border-bottom:3px solid var(--primary);background:transparent}
+.card{
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border: none;
+  transition: transform 0.2s;
+}
+.card:hover{ transform: translateY(-2px); }
+.nav-tabs .nav-link{
+  border-radius: 30px;
+  margin: 0 6px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 600;
+}
+.nav-tabs .nav-link.active{
+  background: var(--primary);
+  color: #fff;
+}
 .tab-content{background:var(--card);padding:20px;border-radius:12px}
-.btn-primary{background:var(--primary);border-color:var(--primary)}
+.btn-primary{
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  border: none;
+  border-radius: 30px;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+.btn-primary:hover{
+  background: linear-gradient(135deg, var(--primary-light), var(--primary));
+}
 .form-control,.form-select{border-radius:8px}
 .scenario-card{display:flex;gap:16px;align-items:center;padding:14px;border-radius:12px;background:#fff;border:1px solid #eee}
 .scenario-card img{width:120px;height:80px;object-fit:cover;border-radius:8px}
@@ -42,13 +67,104 @@ h1{color:var(--primary);font-weight:700}
 .pass{background:var(--success)}.fail{background:var(--danger)}.not-produced{background:var(--warning)}
 .image-preview-item img{width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #ddd}
 .image-preview-item .remove-btn{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer}
-.login-wrap{display:flex;justify-content:center;align-items:center;min-height:100vh;background-image:url('https://source.unsplash.com/random/1600x900?finance,stock');background-size:cover;background-position:center}
-.login-container{width:360px;padding:32px;background:linear-gradient(180deg,var(--primary),#ffb86b);border-radius:12px;color:#fff;box-shadow:0 8px 30px rgba(0,0,0,0.18)}
-.login-container h2{font-weight:800}
+/* === Modern Glassy Login Screen === */
+.login-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+
+  /* Soft gradient overlay + background image */
+  background: 
+    linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)),
+    url('https://source.unsplash.com/1600x900/?stock,finance,technology') center/cover no-repeat;
+}
+
+/* === Modern Orange & White Login Screen === */
+.login-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+
+  /* Background image with a subtle dark overlay for contrast */
+  background:
+    linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)),
+    url('https://source.unsplash.com/1600x900/?finance,stock,technology') center/cover no-repeat;
+}
+
+.login-container {
+  width: 92%;
+  max-width: 380px;
+  padding: 40px 32px;
+
+  /* Vibrant orange background with a soft white inner panel */
+  background: linear-gradient(135deg, #ff9800, #ffb74d); /* orange gradient */
+  border-radius: 20px;
+  color: #fff;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+/* create a white inner inset “panel” */
+.login-container::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  background: #ffffff;
+  border-radius: 16px;
+  z-index: 0;
+}
+
+.login-container h2,
+.login-container p,
+.login-container form {
+  position: relative;
+  z-index: 1;  /* keep content above the white inset */
+  color: #ff6f00; /* dark orange text inside */
+}
+
+/* inputs with orange border */
+.login-container .form-control {
+  border-radius: 30px;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ff9800;
+  background: #fff;
+  color: #333;
+}
+.login-container .form-control::placeholder { color: #999; }
+
+.login-container .btn-primary {
+  border-radius: 30px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #ff9800, #ffb74d);
+  border: none;
+  color: #fff;
+  padding: 0.75rem;
+  transition: opacity 0.3s;
+}
+.login-container .btn-primary:hover {
+  opacity: 0.9;
+}
+
+/* entrance keyframe */
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .zoom-wrap{overflow:hidden;border-radius:8px}
 .zoom-img{max-width:100%;height:auto;touch-action:none;user-select:none;-webkit-user-drag:none}
 .small-muted{color:var(--muted)}
-.table-striped tbody tr{box-shadow: 0 1px 0 rgba(0,0,0,0.02) inset;}
+.table-striped tbody tr{
+  transition: background 0.2s;
+}
+.table-striped tbody tr:hover{
+  background: rgba(79,70,229,0.05);
+}
 .badge-pass{background:var(--success);color:#fff}
 .badge-fail{background:var(--danger);color:#fff}
 .badge-not{background:var(--warning);color:#212529}
@@ -56,6 +172,44 @@ h1{color:var(--primary);font-weight:700}
   .scenario-card{flex-direction:row}
   .scenario-card img{width:90px;height:70px}
 }
+/* === START Mobile & Modal Enhancements === */
+@media (max-width: 575px){
+  .login-container{
+    width: 90% !important;
+    padding: 24px;
+  }
+  .scenario-card img{ width:80px; height:60px; }
+  .scenario-card{ flex-direction:column; align-items:flex-start; }
+}
+
+/* === Modern, polished modal header === */
+.modal-header{
+  /* soft diagonal gradient for depth */
+  background: linear-gradient(135deg, var(--primary-light), var(--primary));
+  color: #fff;
+  font-weight: 700;
+
+  /* round the top corners perfectly */
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+
+  /* remove any default border that can create “cut” edges */
+  border-bottom: none;
+
+  /* add a subtle shadow for lift */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+
+  /* optional: smooth inner padding */
+  padding: 1rem 1.25rem;
+}
+
+
+/* better mobile tap targets */
+.btn { min-height: 44px; }
+
+/* make tables scroll on small screens */
+.table-responsive { overflow-x: auto; }
+
 </style>
 </head>
 <body>
@@ -639,7 +793,17 @@ $(function(){
       rulesHtml += '</ul>';
     }
 
-    const imagesHtml = (found.images || []).length ? (found.images.map((img,i)=>`<div class="col-md-4 mb-3"><div class="zoom-wrap"><img src="${img}" class="zoom-img" data-index="${i}" /></div></div>`).join('')) : '<div class="col"><p>No images uploaded.</p></div>';
+    // === START Image popup change ===
+	const imagesHtml = (found.images || []).length ?
+	(found.images.map((img,i)=>`
+		<div class="col-md-4 mb-3">
+		<a href="${img}" target="_blank">
+			<div class="zoom-wrap"><img src="${img}" class="zoom-img" data-index="${i}" /></div>
+		</a>
+		</div>`).join(''))
+	: '<div class="col"><p>No images uploaded.</p></div>';
+	// === END Image popup change ===
+
 
     $('#view-scenario-body').html(`
       <p><strong>Scenario Title:</strong> ${escapeHtml(cfg.title)}</p>
@@ -676,11 +840,62 @@ $(function(){
     renderReport();
   });
 
-  // Report details button triggers view
-  $(document).on('click', '.btn-view-report', function(){
-    const id = $(this).data('id');
-    $(`.btn-view[data-id="${id}"]`).trigger('click');
+  // === START Fix: open scenario directly from report ===
+$(document).on('click', '.btn-view-report', function () {
+  const id = $(this).data('id');
+  let found = null, foundDate = null;
+  Object.keys(dailyScenarios).forEach(d => {
+    (dailyScenarios[d] || []).forEach(s => {
+      if (s.id === id) { found = s; foundDate = d; }
+    });
   });
+  if (!found) return alert('Scenario not found');
+
+  const cfg = configurations.find(c => c.id == found.configId) || { title: 'Unknown' };
+  const defs = JSON.parse(localStorage.getItem('rules_' + found.configId) || '[]');
+  let rulesHtml = '<div class="alert alert-info">No rules configured.</div>';
+  if (found.rules && found.rules.length && defs.length) {
+    rulesHtml = '<ul class="list-group">';
+    found.rules.forEach(r => {
+      const def = defs.find(d => d.id == r.id) || {};
+      rulesHtml += `<li class="list-group-item">
+                      <h6 class="mb-1">${escapeHtml(def.name || 'Unknown')}</h6>
+                      <p class="mb-1"><strong>Status:</strong>
+                        <span class="badge ${r.status === 'pass' ? 'bg-success' : 'bg-danger'}">${(r.status || '').toUpperCase()}</span>
+                      </p>
+                      ${r.comment ? `<p class="mb-0"><strong>Comment:</strong> ${escapeHtml(r.comment)}</p>` : ''}
+                    </li>`;
+    });
+    rulesHtml += '</ul>';
+  }
+
+  const imagesHtml = (found.images || []).length
+    ? found.images.map((img, i) =>
+        `<div class="col-md-4 mb-3">
+           <a href="${img}" target="_blank">
+             <div class="zoom-wrap"><img src="${img}" class="zoom-img" data-index="${i}" /></div>
+           </a>
+         </div>`).join('')
+    : '<div class="col"><p>No images uploaded.</p></div>';
+
+  $('#view-scenario-body').html(`
+    <p><strong>Scenario Title:</strong> ${escapeHtml(cfg.title)}</p>
+    <p><strong>Date:</strong> ${foundDate}</p>
+    <p><strong>Status:</strong>
+       <span class="badge ${found.status === 'pass' ? 'bg-success' : (found.status === 'fail' ? 'bg-danger' : 'bg-warning')}">
+         ${(found.status || '').toUpperCase()}
+       </span>
+    </p>
+    <p><strong>Explanation:</strong> ${escapeHtml(found.explanation || 'N/A')}</p>
+    <hr /><h6>Rules:</h6>${rulesHtml}
+    <hr /><h6>Images:</h6><div class="row">${imagesHtml}</div>
+  `);
+
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('viewScenarioModal')).show();
+  setTimeout(() => { initPanZoom('.zoom-img'); }, 100);
+});
+// === END Fix ===
+
 
   // Config CRUD
   $('#open-add-config').on('click', function(){
