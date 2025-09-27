@@ -840,45 +840,65 @@ $(function(){
     renderReport();
   });
 
-	$(document).on('click', '.btn-view-report', function () {
-    const id = $(this).data('id');
+  // === FIX: open scenario directly from report, independent of Daily tab ===
+$(document).on('click', '.btn-view-report', function () {
+  const id = $(this).data('id');
 
-    let found = null, foundDate = null;
+  // locate scenario across all stored dates
+  let found = null, foundDate = null;
+  Object.keys(dailyScenarios).forEach(d => {
+    (dailyScenarios[d] || []).forEach(s => {
+      if (s.id === id) { found = s; foundDate = d; }
+    });
+  });
+  if (!found) return alert('Scenario not found');
 
-    // Find scenario across all dates
-    for (const [date, scenarios] of Object.entries(dailyScenarios || {})) {
-        for (const s of scenarios) {
-            if (String(s.id) === String(id)) {
-                found = s;
-                foundDate = date;
-                break;
-            }
-        }
-        if (found) break;
-    }
+  const cfg  = configurations.find(c => c.id === found.configId) || { title: 'Unknown' };
+  const defs = JSON.parse(localStorage.getItem('rules_' + found.configId) || '[]');
 
-    if (!found) return alert('Scenario not found');
+  // build rules HTML
+  let rulesHtml = '<div class="alert alert-info">No rules configured.</div>';
+  if (found.rules && found.rules.length && defs.length) {
+    rulesHtml = '<ul class="list-group">';
+    found.rules.forEach(r => {
+      const def = defs.find(d => d.id === r.id) || {};
+      rulesHtml += `<li class="list-group-item">
+                      <h6 class="mb-1">${escapeHtml(def.name || 'Unknown')}</h6>
+                      <p class="mb-1"><strong>Status:</strong>
+                        <span class="badge ${r.status==='pass'?'bg-success':'bg-danger'}">${(r.status||'').toUpperCase()}</span>
+                      </p>
+                      ${r.comment ? `<p class="mb-0"><strong>Comment:</strong> ${escapeHtml(r.comment)}</p>` : ''}
+                    </li>`;
+    });
+    rulesHtml += '</ul>';
+  }
 
-    // 1️⃣ Switch to Daily Scenario tab
-    $('#dailyScenarioTab').tab('show');
+  // build images HTML (use data-safe single-tap zoom only)
+  const imagesHtml = (found.images || []).length
+    ? found.images.map((img,i)=>`
+        <div class="col-md-4 mb-3">
+          <div class="zoom-wrap">
+            <img src="${img}" class="zoom-img safe-zoom" data-index="${i}" />
+          </div>
+        </div>`).join('')
+    : '<div class="col"><p>No images uploaded.</p></div>';
 
-    // 2️⃣ Set the date picker and render scenarios for that date
-    $('#scenario-date-picker').val(foundDate).trigger('change');
-    if (typeof renderDailyScenariosForDate === 'function') {
-        renderDailyScenariosForDate(foundDate);
-    }
+  $('#view-scenario-body').html(`
+    <p><strong>Scenario Title:</strong> ${escapeHtml(cfg.title)}</p>
+    <p><strong>Date:</strong> ${foundDate}</p>
+    <p><strong>Status:</strong>
+       <span class="badge ${found.status==='pass'?'bg-success':(found.status==='fail'?'bg-danger':'bg-warning')}">
+         ${(found.status||'').toUpperCase()}
+       </span>
+    </p>
+    <p><strong>Explanation:</strong> ${escapeHtml(found.explanation||'N/A')}</p>
+    <hr><h6>Rules:</h6>${rulesHtml}
+    <hr><h6>Images:</h6><div class="row">${imagesHtml}</div>
+  `);
 
-    // 3️⃣ After render, simulate click on the daily scenario's View button
-    setTimeout(() => {
-        const $dailyViewBtn = $(`#daily-scenario-item-${found.id} .btn-view-scenario`);
-        if ($dailyViewBtn.length) {
-            $dailyViewBtn.trigger('click'); // triggers exactly the same logic as Daily View
-        } else {
-            console.warn('Daily scenario View button not found for id', found.id);
-        }
-    }, 100);
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('viewScenarioModal')).show();
+  setTimeout(()=>{ initPanZoom('.safe-zoom'); },100);
 });
-
 
   // Config CRUD
   $('#open-add-config').on('click', function(){
