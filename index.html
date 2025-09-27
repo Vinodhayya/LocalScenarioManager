@@ -848,9 +848,13 @@ $(document).on('click', '.btn-view-report', function () {
   let found = null, foundDate = null;
   Object.keys(dailyScenarios).forEach(d => {
     (dailyScenarios[d] || []).forEach(s => {
-      if (s.id === id) { found = s; foundDate = d; }
+      if (String(s.id) === String(id)) { // ✅ convert both to string for matching
+        found = s;
+        foundDate = d;
+      }
     });
   });
+
   if (!found) return alert('Scenario not found');
 
   const cfg  = configurations.find(c => c.id === found.configId) || { title: 'Unknown' };
