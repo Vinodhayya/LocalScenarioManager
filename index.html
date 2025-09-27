@@ -840,9 +840,11 @@ $(function(){
     renderReport();
   });
 
-  // === START Fix: open scenario directly from report ===
+  // === FIX: open scenario directly from report, independent of Daily tab ===
 $(document).on('click', '.btn-view-report', function () {
   const id = $(this).data('id');
+
+  // locate scenario across all stored dates
   let found = null, foundDate = null;
   Object.keys(dailyScenarios).forEach(d => {
     (dailyScenarios[d] || []).forEach(s => {
@@ -851,17 +853,19 @@ $(document).on('click', '.btn-view-report', function () {
   });
   if (!found) return alert('Scenario not found');
 
-  const cfg = configurations.find(c => c.id == found.configId) || { title: 'Unknown' };
+  const cfg  = configurations.find(c => c.id === found.configId) || { title: 'Unknown' };
   const defs = JSON.parse(localStorage.getItem('rules_' + found.configId) || '[]');
+
+  // build rules HTML
   let rulesHtml = '<div class="alert alert-info">No rules configured.</div>';
   if (found.rules && found.rules.length && defs.length) {
     rulesHtml = '<ul class="list-group">';
     found.rules.forEach(r => {
-      const def = defs.find(d => d.id == r.id) || {};
+      const def = defs.find(d => d.id === r.id) || {};
       rulesHtml += `<li class="list-group-item">
                       <h6 class="mb-1">${escapeHtml(def.name || 'Unknown')}</h6>
                       <p class="mb-1"><strong>Status:</strong>
-                        <span class="badge ${r.status === 'pass' ? 'bg-success' : 'bg-danger'}">${(r.status || '').toUpperCase()}</span>
+                        <span class="badge ${r.status==='pass'?'bg-success':'bg-danger'}">${(r.status||'').toUpperCase()}</span>
                       </p>
                       ${r.comment ? `<p class="mb-0"><strong>Comment:</strong> ${escapeHtml(r.comment)}</p>` : ''}
                     </li>`;
@@ -869,32 +873,33 @@ $(document).on('click', '.btn-view-report', function () {
     rulesHtml += '</ul>';
   }
 
+  // build images HTML (use data-safe single-tap zoom only)
   const imagesHtml = (found.images || []).length
-    ? found.images.map((img, i) =>
-        `<div class="col-md-4 mb-3">
-           <a href="${img}" target="_blank">
-             <div class="zoom-wrap"><img src="${img}" class="zoom-img" data-index="${i}" /></div>
-           </a>
-         </div>`).join('')
+    ? found.images.map((img,i)=>`
+        <div class="col-md-4 mb-3">
+          <div class="zoom-wrap">
+            <img src="${img}" class="zoom-img safe-zoom" data-index="${i}" />
+          </div>
+        </div>`).join('')
     : '<div class="col"><p>No images uploaded.</p></div>';
 
   $('#view-scenario-body').html(`
     <p><strong>Scenario Title:</strong> ${escapeHtml(cfg.title)}</p>
     <p><strong>Date:</strong> ${foundDate}</p>
     <p><strong>Status:</strong>
-       <span class="badge ${found.status === 'pass' ? 'bg-success' : (found.status === 'fail' ? 'bg-danger' : 'bg-warning')}">
-         ${(found.status || '').toUpperCase()}
+       <span class="badge ${found.status==='pass'?'bg-success':(found.status==='fail'?'bg-danger':'bg-warning')}">
+         ${(found.status||'').toUpperCase()}
        </span>
     </p>
-    <p><strong>Explanation:</strong> ${escapeHtml(found.explanation || 'N/A')}</p>
-    <hr /><h6>Rules:</h6>${rulesHtml}
-    <hr /><h6>Images:</h6><div class="row">${imagesHtml}</div>
+    <p><strong>Explanation:</strong> ${escapeHtml(found.explanation||'N/A')}</p>
+    <hr><h6>Rules:</h6>${rulesHtml}
+    <hr><h6>Images:</h6><div class="row">${imagesHtml}</div>
   `);
 
   bootstrap.Modal.getOrCreateInstance(document.getElementById('viewScenarioModal')).show();
-  setTimeout(() => { initPanZoom('.zoom-img'); }, 100);
+  setTimeout(()=>{ initPanZoom('.safe-zoom'); },100);
 });
-// === END Fix ===
+
 
 
   // Config CRUD
@@ -1078,6 +1083,13 @@ $(document).on('click', '.btn-view-report', function () {
       if (img._pz) return;
       img._pz = true;
       let scale = 1, pos = {x:0,y:0}, last = null, pointers = {};
+	        // Prevent double-tap zoom crashes
+      img.addEventListener('dblclick', e => {
+        e.preventDefault();
+        // reset to original
+        scale = 1; pos = {x:0,y:0};
+        img.style.transform = `translate(0,0) scale(1)`;
+      });
       img.style.transformOrigin = '0 0';
       img.style.touchAction = 'none';
       img.addEventListener('pointerdown', e => { img.setPointerCapture(e.pointerId); pointers[e.pointerId] = {x:e.clientX,y:e.clientY}; last = {x:e.clientX,y:e.clientY}; });
