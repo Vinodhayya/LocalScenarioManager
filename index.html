@@ -231,6 +231,34 @@ textarea.form-control{ border-radius:12px; }
 /* danger small */
 .text-danger-small{ color:var(--danger); font-size:.9rem }
 
+/* Ensure images in modal layout properly and are constrained */
+#viewScenarioModal .zoom-img,
+#viewScenarioModal .safe-zoom,
+#viewScenarioModal .zoom-wrap img,
+#viewScenarioModal .row img {
+  width: 100%;
+  max-width: 100%;
+  max-height: 72vh;           /* keep image inside modal vertically */
+  height: auto;
+  object-fit: contain;        /* ensure full image is visible */
+  border-radius: 8px;
+  cursor: grab;
+  touch-action: none;         /* we'll handle gestures */
+  transition: transform 160ms ease-out; /* smooth transforms */
+  display: block;
+  margin: 0 auto;
+}
+
+/* While dragging change cursor */
+#viewScenarioModal .zoom-img.dragging,
+#viewScenarioModal .safe-zoom.dragging {
+  cursor: grabbing;
+}
+
+/* Container that holds inline images (modal grid) - keeps a consistent gap */
+#viewScenarioModal .row > .col-md-4 { display:flex; align-items:center; justify-content:center; }
+
+
 /* responsive tweaks */
 @media (max-width:768px){
   .scenario-card{ flex-direction:row; gap:12px }
@@ -1394,37 +1422,226 @@ $(function(){
 
   // pan/zoom
   function initPanZoom(selector) {
+  // Robust pan/zoom using Pointer events with multi-touch pinch support.
+  // Works on desktop (wheel/drag/dblclick) and mobile (pinch/drag/double-tap).
   document.querySelectorAll(selector).forEach(img => {
-    if (img._viewer) return; // prevent re-init
-    const viewer = new Viewer(img, {
-      toolbar: {
-        zoomIn: 1,
-        zoomOut: 1,
-        oneToOne: 1,
-        reset: 1,
-        prev: 1,
-        play: {
-          show: 1,
-          size: 'large'
-        },
-        next: 1,
-        rotateLeft: 1,
-        rotateRight: 1,
-        flipHorizontal: 1,
-        flipVertical: 1,
-      },
-      movable: true,
-      zoomable: true,
-      rotatable: true,
-      scalable: true,
-      fullscreen: true,
-      transition: true,
-      backdrop: true,
-      title: false,
+    if (img._pzInitialized) return;
+    img._pzInitialized = true;
+
+    // initial state
+    let scale = 1;
+    const MIN_SCALE = 1;
+    const MAX_SCALE = 4;
+    let translate = { x: 0, y: 0 };
+
+    // pointer tracking for pan & pinch
+    const pointers = new Map();
+    let lastTouchDistance = null;
+    let isDragging = false;
+    let lastPointerPos = null;
+
+    // helper to apply transform
+    function applyTransform() {
+      img.style.transform = `translate(${translate.x}px, ${translate.y}px) scale(${scale})`;
+    }
+
+    // reset to fit
+    function resetFit(animate=true) {
+      scale = 1;
+      translate = { x: 0, y: 0 };
+      if (animate) img.style.transition = 'transform 180ms ease';
+      applyTransform();
+      setTimeout(()=> img.style.transition = '', 200);
+    }
+
+    // clamp translate so image doesn't go way off screen (simple clamp)
+    function clampTranslate() {
+      // compute visible sizes
+      const rect = img.getBoundingClientRect();
+      // image displayed size after scale
+      const iw = rect.width;
+      const ih = rect.height;
+
+      // container allowable overflow (a margin)
+      const maxX = Math.max(0, (iw * (scale) - rect.width) / 2 + 10);
+      const maxY = Math.max(0, (ih * (scale) - rect.height) / 2 + 10);
+
+      // simple clamping
+      translate.x = Math.max(-maxX, Math.min(maxX, translate.x));
+      translate.y = Math.max(-maxY, Math.min(maxY, translate.y));
+    }
+
+    // wheel zoom (desktop)
+    function onWheel(e) {
+      try {
+        e.preventDefault();
+        const delta = -e.deltaY;
+        const zoomFactor = delta > 0 ? 1.08 : 0.93; // small steps
+        const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale * zoomFactor));
+        // zoom toward mouse pointer: compute offset
+        const rect = img.getBoundingClientRect();
+        const cx = e.clientX - rect.left;
+        const cy = e.clientY - rect.top;
+        // transform to image coordinates
+        const relX = (cx - rect.width/2 - translate.x) / scale;
+        const relY = (cy - rect.height/2 - translate.y) / scale;
+        // update scale
+        const prevScale = scale;
+        scale = newScale;
+        // update translate so the point under cursor remains under cursor
+        translate.x -= (relX * (scale - prevScale));
+        translate.y -= (relY * (scale - prevScale));
+        clampTranslate();
+        applyTransform();
+      } catch (err) { console.warn('wheel zoom error', err); }
+    }
+
+    function getDistance(p1, p2) {
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      return Math.hypot(dx, dy);
+    }
+
+    function pointerDown(e) {
+      try {
+        img.setPointerCapture?.(e.pointerId);
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        lastPointerPos = { x: e.clientX, y: e.clientY };
+
+        if (pointers.size === 1) {
+          isDragging = true;
+          img.classList.add('dragging');
+        } else if (pointers.size === 2) {
+          // start pinch
+          const pts = Array.from(pointers.values());
+          lastTouchDistance = getDistance(pts[0], pts[1]);
+        }
+      } catch (err) { console.warn('pointerDown err', err); }
+    }
+
+    function pointerMove(e) {
+      try {
+        if (!pointers.has(e.pointerId)) return;
+        const prev = pointers.get(e.pointerId);
+        const curr = { x: e.clientX, y: e.clientY };
+        pointers.set(e.pointerId, curr);
+
+        if (pointers.size === 1 && isDragging) {
+          // simple pan
+          const dx = curr.x - prev.x;
+          const dy = curr.y - prev.y;
+          translate.x += dx;
+          translate.y += dy;
+          clampTranslate();
+          applyTransform();
+        } else if (pointers.size === 2) {
+          // pinch to zoom
+          const pts = Array.from(pointers.values());
+          const dist = getDistance(pts[0], pts[1]);
+          if (lastTouchDistance) {
+            const factor = dist / lastTouchDistance;
+            const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale * factor));
+            // center between two pointers
+            const rect = img.getBoundingClientRect();
+            const center = { x: (pts[0].x + pts[1].x)/2 - rect.left, y: (pts[0].y + pts[1].y)/2 - rect.top };
+            const relX = (center.x - rect.width/2 - translate.x) / scale;
+            const relY = (center.y - rect.height/2 - translate.y) / scale;
+            const prevScale = scale;
+            scale = newScale;
+            translate.x -= (relX * (scale - prevScale));
+            translate.y -= (relY * (scale - prevScale));
+            clampTranslate();
+            applyTransform();
+          }
+          lastTouchDistance = dist;
+        }
+      } catch (err) { console.warn('pointerMove err', err); }
+    }
+
+    function pointerUp(e) {
+      try {
+        pointers.delete(e.pointerId);
+        lastPointerPos = null;
+        if (pointers.size < 2) lastTouchDistance = null;
+        if (pointers.size === 0) {
+          isDragging = false;
+          img.classList.remove('dragging');
+        }
+      } catch (err) { console.warn('pointerUp err', err); }
+    }
+
+    // custom double-tap / double-click toggle (robust)
+    let lastTap = 0;
+    function onPointerTap(e) {
+      try {
+        // treat only primary button/touch
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        const now = Date.now();
+        const gap = now - lastTap;
+        lastTap = now;
+        if (gap < 350) { // double-tap/dblclick detected
+          // toggle between fit and safe zoom
+          if (scale > 1.05) {
+            resetFit(true);
+          } else {
+            // zoom to 2x centered at tapped position
+            const rect = img.getBoundingClientRect();
+            const cx = e.clientX - rect.left;
+            const cy = e.clientY - rect.top;
+            const targetScale = 2;
+            const relX = (cx - rect.width/2 - translate.x) / scale;
+            const relY = (cy - rect.height/2 - translate.y) / scale;
+            const prevScale = scale;
+            scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, targetScale));
+            translate.x -= (relX * (scale - prevScale));
+            translate.y -= (relY * (scale - prevScale));
+            clampTranslate();
+            applyTransform();
+          }
+        }
+      } catch (err) { console.warn('tap handler err', err); }
+    }
+
+    // touch-friendly tap binding: pointerdown + small movement = tap
+    let pointerDownTime = 0;
+    let pointerDownPos = null;
+    function onPointerDownForTap(e) {
+      pointerDownTime = Date.now();
+      pointerDownPos = { x: e.clientX, y: e.clientY };
+    }
+    function onPointerUpForTap(e) {
+      const dt = Date.now() - pointerDownTime;
+      const dx = Math.abs(e.clientX - (pointerDownPos?.x || 0));
+      const dy = Math.abs(e.clientY - (pointerDownPos?.y || 0));
+      if (dt < 400 && dx < 8 && dy < 8) {
+        onPointerTap(e);
+      }
+      pointerDownPos = null;
+    }
+
+    // add listeners
+    img.addEventListener('pointerdown', function(e){ pointerDown(e); onPointerDownForTap(e); });
+    img.addEventListener('pointermove', pointerMove);
+    img.addEventListener('pointerup', function(e){ pointerUp(e); onPointerUpForTap(e); });
+    img.addEventListener('pointercancel', pointerUp);
+    img.addEventListener('pointerout', () => {}); // no-op (prevents some Safari issues)
+
+    // wheel zoom
+    img.addEventListener('wheel', onWheel, { passive: false });
+
+    // safety: double-click native -> prevent default to avoid conflict with pointer capture crashes
+    img.addEventListener('dblclick', function(e){ e.preventDefault(); });
+
+    // Reset when modal is closed to avoid sticky transforms
+    $(document).on('hidden.bs.modal', '#viewScenarioModal', function() {
+      try { resetFit(false); } catch(e){/*ignore*/ }
     });
-    img._viewer = viewer;
+
+    // ensure initial placement is reset
+    resetFit(false);
   });
 }
+
 
   // Init
   (function init(){
